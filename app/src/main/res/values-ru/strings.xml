@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Упаковка</string>
+    <string name="str_amd_url">https://amd.spbstu.ru/</string>
+    <string name="str_depth">Кафедра Прикладной Математики</string>
+    <string name="str_university1">Санкт-Петербургский Политехнический</string>
+    <string name="str_university2">университет Петра Великого</string>
+    <string name="str_toweb">На сайт</string>
+    <string name="str_start">Старт</string>
+    <string name="str_show">Показать</string>
+    <string name="str_pack">Рюкзак</string>
+    <string name="str_completed">выполнено</string>
+    <string name="str_press_to_start">Нажмите экран для упаковки</string>
+    <string name="str_shape_percent">Заполняемость формы</string>
+    <string name="str_rect_percent">Заполняемость прям-к</string>
+    <string name="str_num_objects">Число форм</string>
+    <string name="str_touch_change_shape">Нажмите экран чтобы показать другую форму</string>
+
+    <string name="str_num_shapes">Число форм</string>
+    <string name="str_desired_number">Желаемое число</string>
+
+
+</resources>
