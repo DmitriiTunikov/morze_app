@@ -22,20 +22,12 @@ public class AppMenu
   private String				m_strShow;
   private String				m_strPack;
 
-  // Apple body parameters
-  private int				m_scrW, m_scrH;
-  private int				m_scrCenterX, m_scrCenterY;
-
   // rects
   public Rect                            m_rectShow;
   public Rect                            m_rectPack;
 
   private Paint 													m_paintTextButton;
   private Paint 													m_paintRectButton;
-
-  static private String  m_log = "KP2D";
-
-
 
   // METHODS
   public AppMenu(ActivityMain ctx, int language)
@@ -73,7 +65,7 @@ public class AppMenu
 
   public void onOrientation(int ori)
   {
-    Log.d(m_log, "New orientation");
+    Log.d(ActivityMain.APP_NAME, "New orientation");
     m_oriChanged = 1;
   }
 

@@ -30,8 +30,6 @@ public class FloodFill
   int              s_stackIndex;
   FillSegment2D    s_stack2D[];
 
-  static private String  m_log = "KP2D";
-
   // ******************************************************
   // Methods
   // ******************************************************
@@ -92,7 +90,7 @@ public class FloodFill
     final int valSeed = pixelsSrc[xStart + yOff];
     if (valSeed == valReplacement)
     {
-      Log.d(m_log,
+      Log.d(ActivityMain.APP_NAME,
           "fill2D: valSeed should be not equal to valReplacement: " +
               String.valueOf(valSeed) + " != " +
               String.valueOf(valReplacement));
@@ -220,7 +218,7 @@ public class FloodFill
         xs = xe;
       }
     } // while stak not empty
-    // Log.d(m_log, "Flood fill num itrerations = " + String.valueOf(iter));
+    // Log.d(ActivityMain.APP_NAME, "Flood fill num itrerations = " + String.valueOf(iter));
     if (iter >= MAX_ITERATIONS)
       return FE_TOO_MUCH_ITERATIONS;
     return FE_OK;
