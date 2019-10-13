@@ -11,6 +11,9 @@ import android.media.MediaPlayer.OnCompletionListener;
 
 import java.util.Locale;
 
+import edu.spbspu.amd.morze_app.sender.AppSender;
+import edu.spbspu.amd.morze_app.sender.ViewSender;
+
 
 public class ActivityMain extends Activity implements View.OnTouchListener, OnCompletionListener
 {
@@ -26,6 +29,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   public static final int	VIEW_INTRO		= 0;
   public static final int	VIEW_MENU 		= 1;
   public static final int	VIEW_PLAY		  = 2;
+  public static final int	VIEW_SENDER		  = 3;
 
   public static final int MODE_SOURCE_SHAPE	= 0;
   public static final int MODE_KNACK_PACK   = 1;
@@ -38,8 +42,11 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
 
   private AppIntro   m_appIntro;
   private AppMenu    m_appMenu;
+  private AppSender m_appSender;
+
   private ViewIntro  m_viewIntro;
-  private ViewMenu		m_viewMenu;
+  private ViewMenu	  m_viewMenu;
+  private ViewSender m_viewSender;
 
   // screen dim
   private int        m_screenW;
@@ -90,6 +97,9 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     m_appIntro = new AppIntro(this, language);
     // Create application menu
     m_appMenu = new AppMenu(this, language);
+    //create app_sender
+    m_appSender = new AppSender(this);
+
 
     // Create view
     setView(VIEW_INTRO);
@@ -102,6 +112,11 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   public AppMenu getAppMenu()
   {
     return m_appMenu;
+  }
+
+  public AppSender getAppSender()
+  {
+    return m_appSender;
   }
 
   public int getScreenWidth() { return m_screenW; }
@@ -127,6 +142,13 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       Log.d(ActivityMain.APP_NAME, "Switch to m_viewMenu" );
       setContentView(m_viewMenu);
       m_viewMenu.start();
+    }
+    if (m_viewCur == VIEW_SENDER)
+    {
+      m_viewSender = new ViewSender(this);
+      Log.d(ActivityMain.APP_NAME, "Switch to sender view" );
+      setContentView(m_viewSender);
+      m_viewSender.start();
     }
   }
 
