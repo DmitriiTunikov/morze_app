@@ -43,8 +43,6 @@ public class AppIntro
   static private final int TIME_LEAF					          = 256;
   static private final int NUM_SEG_APPLE				        = 60;
 
-  static private String  m_log = "KP2D";
-
   // DATA
   private long				m_curTime, m_prevTime;
   private int					m_renderCounter;
@@ -174,7 +172,7 @@ public class AppIntro
 
     if ((TIME_LEAF & (TIME_LEAF - 1)) != 0)
     {
-      Log.d(m_log, "!!!! Constant parameter TIME_LEAF is ont power of 2 !!!");
+      Log.d(ActivityMain.APP_NAME, "!!!! Constant parameter TIME_LEAF is ont power of 2 !!!");
     }
   }
 
@@ -193,13 +191,13 @@ public class AppIntro
       bmp = BitmapFactory.decodeStream(ins);
     } catch (IOException e)
     {
-      Log.d(m_log, "Error read bitmap");
+      Log.d(ActivityMain.APP_NAME, "Error read bitmap");
     }
     return bmp;
   }
   public void onOrientation(int ori)
   {
-    Log.d(m_log, "New orientation");
+    Log.d(ActivityMain.APP_NAME, "New orientation");
     m_oriChanged = 1;
   }
 
@@ -319,7 +317,7 @@ public class AppIntro
       textSize = 20.0f;
     if (textSize > 50.0f)
       textSize = 50.0f;
-    // Log.d(m_log, "text Size is " + String.valueOf(textSize)  );
+    // Log.d(ActivityMain.APP_NAME, "text Size is " + String.valueOf(textSize)  );
     m_paintTextWhite.setTextSize(textSize);
     m_paintTextYell.setTextSize(textSize * 0.85f);
   }

@@ -11,6 +11,9 @@ import android.media.MediaPlayer.OnCompletionListener;
 
 import java.util.Locale;
 
+import edu.spbspu.amd.morze_app.sender.AppSender;
+import edu.spbspu.amd.morze_app.sender.ViewSender;
+
 
 public class ActivityMain extends Activity implements View.OnTouchListener, OnCompletionListener
 {
@@ -21,9 +24,12 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
 
   static public final boolean APP_RUN_MODE    = false;
 
+  static public final String APP_NAME = "MORZE";
+
   public static final int	VIEW_INTRO		= 0;
   public static final int	VIEW_MENU 		= 1;
   public static final int	VIEW_PLAY		  = 2;
+  public static final int	VIEW_SENDER		  = 3;
 
   public static final int MODE_SOURCE_SHAPE	= 0;
   public static final int MODE_KNACK_PACK   = 1;
@@ -36,14 +42,15 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
 
   private AppIntro   m_appIntro;
   private AppMenu    m_appMenu;
+  private AppSender m_appSender;
+
   private ViewIntro  m_viewIntro;
-  private ViewMenu		m_viewMenu;
+  private ViewMenu	  m_viewMenu;
+  private ViewSender m_viewSender;
 
   // screen dim
   private int        m_screenW;
   private int        m_screenH;
-
-  private String  m_log = "MORZE";
 
   // *************************************************
   // METHODS
@@ -66,30 +73,33 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     m_screenW = point.x;
     m_screenH = point.y;
 
-    Log.d(m_log, "Screen size is " + String.valueOf(m_screenW) + " * " +  String.valueOf(m_screenH) );
+    Log.d(ActivityMain.APP_NAME, "Screen size is " + String.valueOf(m_screenW) + " * " +  String.valueOf(m_screenH) );
 
     // Detect language
     String strLang = Locale.getDefault().getDisplayLanguage();
     int language;
     if (strLang.equalsIgnoreCase("english"))
     {
-      Log.d(m_log, "LOCALE: English");
+      Log.d(ActivityMain.APP_NAME, "LOCALE: English");
       language = AppIntro.LANGUAGE_ENG;
     }
     else if (strLang.equalsIgnoreCase("русский"))
     {
-      Log.d(m_log, "LOCALE: Russian");
+      Log.d(ActivityMain.APP_NAME, "LOCALE: Russian");
       language = AppIntro.LANGUAGE_RUS;
     }
     else
     {
-      Log.d(m_log, "LOCALE unknown: " + strLang);
+      Log.d(ActivityMain.APP_NAME, "LOCALE unknown: " + strLang);
       language = AppIntro.LANGUAGE_UNKNOWN;
     }
     // Create application intro
     m_appIntro = new AppIntro(this, language);
     // Create application menu
     m_appMenu = new AppMenu(this, language);
+    //create app_sender
+    m_appSender = new AppSender(this);
+
 
     // Create view
     setView(VIEW_INTRO);
@@ -103,7 +113,11 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   {
     return m_appMenu;
   }
-  public ViewIntro  getViewIntro() {return m_viewIntro; }
+
+  public AppSender getAppSender()
+  {
+    return m_appSender;
+  }
 
   public int getScreenWidth() { return m_screenW; }
   public int getScreenHeight() { return m_screenH; }
@@ -112,7 +126,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   {
     if (m_viewCur == viewID)
     {
-      Log.d(m_log, "setView: already set");
+      Log.d(ActivityMain.APP_NAME, "setView: already set");
       return;
     }
 
@@ -125,9 +139,16 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     if (m_viewCur == VIEW_MENU)
     {
       m_viewMenu = new ViewMenu(this);
-      Log.d(m_log, "Switch to m_viewMenu" );
+      Log.d(ActivityMain.APP_NAME, "Switch to m_viewMenu" );
       setContentView(m_viewMenu);
       m_viewMenu.start();
+    }
+    if (m_viewCur == VIEW_SENDER)
+    {
+      m_viewSender = new ViewSender(this);
+      Log.d(ActivityMain.APP_NAME, "Switch to sender view" );
+      setContentView(m_viewSender);
+      m_viewSender.start();
     }
   }
 
@@ -143,7 +164,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   }
   public void onCompletion(MediaPlayer mp)
   {
-    Log.d(m_log, "onCompletion: Video play is completed");
+    Log.d(ActivityMain.APP_NAME, "onCompletion: Video play is completed");
     //switchToGame();
   }
 
@@ -199,7 +220,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       m_viewIntro.start();
     if (m_viewCur == VIEW_MENU)
       m_viewMenu.start();
-    //Log.d(m_log, "App onResume");
+    //Log.d(ActivityMain.APP_NAME, "App onResume");
   }
   protected void onPause()
   {
@@ -211,7 +232,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
 
     // complete system
     super.onPause();
-    //Log.d(m_log, "App onPause");
+    //Log.d(ActivityMain.APP_NAME, "App onPause");
   }
   protected void onDestroy()
   {

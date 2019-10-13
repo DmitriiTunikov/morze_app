@@ -6,6 +6,9 @@ import android.graphics.*;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
 import android.util.*;
+import android.view.accessibility.AccessibilityNodeInfo;
+
+import edu.spbspu.amd.morze_app.morzeCoder.MorzeСoder;
 
 
 public class AppMenu
@@ -19,23 +22,15 @@ public class AppMenu
 
   private int					  m_oriChanged;
 
-  private String				m_strShow;
-  private String				m_strPack;
-
-  // Apple body parameters
-  private int				m_scrW, m_scrH;
-  private int				m_scrCenterX, m_scrCenterY;
+  private String m_strSend;
+  private String m_strReceive;
 
   // rects
-  public Rect                            m_rectShow;
-  public Rect                            m_rectPack;
+  public Rect m_rectSend;
+  public Rect m_rectReceive;
 
   private Paint 													m_paintTextButton;
   private Paint 													m_paintRectButton;
-
-  static private String  m_log = "KP2D";
-
-
 
   // METHODS
   public AppMenu(ActivityMain ctx, int language)
@@ -47,11 +42,11 @@ public class AppMenu
 
     Resources res 		= ctx.getResources();
     String strPackage = ctx.getPackageName();
-    m_strShow         = res.getString(res.getIdentifier("str_show", "string", strPackage ));
-    m_strPack         = res.getString(res.getIdentifier("str_pack", "string", strPackage ));
+    m_strSend = res.getString(res.getIdentifier("str_send", "string", strPackage ));
+    m_strReceive = res.getString(res.getIdentifier("str_receive", "string", strPackage ));
 
-    m_rectShow	= new Rect();
-    m_rectPack	= new Rect();
+    m_rectSend = new Rect();
+    m_rectReceive = new Rect();
 
     m_paintTextButton = new Paint();
     m_paintTextButton.setColor(0xFF000088);
@@ -73,7 +68,7 @@ public class AppMenu
 
   public void onOrientation(int ori)
   {
-    Log.d(m_log, "New orientation");
+    Log.d(ActivityMain.APP_NAME, "New orientation");
     m_oriChanged = 1;
   }
 
@@ -86,14 +81,14 @@ public class AppMenu
     m_paintTextButton.setTextSize(minDim * 0.03f);
     int wButHalf = minDim / 4;
     int hButHalf = wButHalf / 4;
-    m_rectShow.set(wScr/2 - wButHalf, hScr/2 - hButHalf, wScr/2 + wButHalf, hScr/2 + hButHalf);
+    m_rectSend.set(wScr/2 - wButHalf, hScr/2 - hButHalf, wScr/2 + wButHalf, hScr/2 + hButHalf);
 
-    m_rectPack.set(m_rectShow);
-    m_rectPack.offset(0, hButHalf * 3);
+    m_rectReceive.set(m_rectSend);
+    m_rectReceive.offset(0, hButHalf * 3);
 
     int OPA = 0xff;
-    drawButton(canvas, m_rectShow, m_strShow, 0x92DCFE, 0x1e80B0, OPA);
-    drawButton(canvas, m_rectPack, m_strPack, 0x92DCFE, 0x1e80B0, OPA);
+    drawButton(canvas, m_rectSend, m_strSend, 0x92DCFE, 0x1e80B0, OPA);
+    drawButton(canvas, m_rectReceive, m_strReceive, 0x92DCFE, 0x1e80B0, OPA);
   }
 
 
@@ -133,7 +128,13 @@ public class AppMenu
     if (touchType != AppIntro.TOUCH_DOWN)
       return false;
 
+    int stateNext = ActivityMain.VIEW_SENDER;
+    if (m_rectSend.contains(x, y)) {
+      stateNext = ActivityMain.VIEW_SENDER;
+      m_ctx.getAppSender().refreshSender(100, false, MorzeСoder.encode("abc"));
+    }
+    m_ctx.setView(stateNext);
     return true;
-  }	// onTouch
+  }
 }
 

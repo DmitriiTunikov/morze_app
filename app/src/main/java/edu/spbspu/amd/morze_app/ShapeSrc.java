@@ -28,8 +28,6 @@ public class ShapeSrc {
   public float m_shape19[];
   public float m_shape20[];
 
-  static private String  m_log = "KP2D";
-
   private ArrayList<float[]> m_shapes;
 
 
@@ -79,11 +77,11 @@ public class ShapeSrc {
 
     // GeoFeatures features = new GeoFeatures();
     // getGeometricFeatures(m_shape01, features);
-    // Log.d(m_log, "model 01. Perimeter = " + String.valueOf(features.m_perimeter));
-    // Log.d(m_log, "model 01. cx = " + String.valueOf(features.m_cx));
-    // Log.d(m_log, "model 01. cy = " + String.valueOf(features.m_cy));
-    // Log.d(m_log, "model 01. radMin = " + String.valueOf(features.m_radMin));
-    // Log.d(m_log, "model 01. radMax = " + String.valueOf(features.m_radMax));
+    // Log.d(ActivityMain.APP_NAME, "model 01. Perimeter = " + String.valueOf(features.m_perimeter));
+    // Log.d(ActivityMain.APP_NAME, "model 01. cx = " + String.valueOf(features.m_cx));
+    // Log.d(ActivityMain.APP_NAME, "model 01. cy = " + String.valueOf(features.m_cy));
+    // Log.d(ActivityMain.APP_NAME, "model 01. radMin = " + String.valueOf(features.m_radMin));
+    // Log.d(ActivityMain.APP_NAME, "model 01. radMax = " + String.valueOf(features.m_radMax));
   }
   public int getNumShapes()
   {
@@ -287,7 +285,7 @@ public class ShapeSrc {
     final int numPointsRasterized = rasterizePolyLineIntoPointArray(points, pointsArray, numPointsArrayMax, wImage, hImage);
     if (numPointsRasterized <= 0)
       return 0;
-    // Log.d(m_log, "Rasterized points = " + String.valueOf(numPointsRasterized));
+    // Log.d(ActivityMain.APP_NAME, "Rasterized points = " + String.valueOf(numPointsRasterized));
     // rasterize by points
     final int COL = 0xffffffff;
     for (i = 0; i < numPointsRasterized; i++)
@@ -341,18 +339,18 @@ public class ShapeSrc {
       if ((xEntry < 0) || (xExit < 0))
       {
         // logic error cant find start point
-        Log.d(m_log, " !!! Logic error for shape rasterizer !!! ");
+        Log.d(ActivityMain.APP_NAME, " !!! Logic error for shape rasterizer !!! ");
       }
       xs = (xEntry + xExit) >> 1;
 
-      // Log.d(m_log, "Seed point = " + String.valueOf(xs) + ", " + String.valueOf(ys));
+      // Log.d(ActivityMain.APP_NAME, "Seed point = " + String.valueOf(xs) + ", " + String.valueOf(ys));
 
       // apply flood fill 2d for seed point
       FloodFill filler = new FloodFill();
       final int resFill = filler.fill2D(bufContour, bufFilled, wImage, hImage, xs, ys, COL);
       if (resFill != 1)
       {
-        Log.d(m_log, " !!! Error flood fill !!! ");
+        Log.d(ActivityMain.APP_NAME, " !!! Error flood fill !!! ");
       }
       // acount filled pixels
       for (i = 0; i < numPixels; i++)
