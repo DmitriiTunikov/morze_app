@@ -30,6 +30,18 @@ public class ViewSenderParams extends View {
         m_ctx = ctx;
     }
 
+    public void setParams(EditText editBtn, CheckBox checkBox, Button btn)
+    {
+        m_text = editBtn;
+        m_repeat = checkBox;
+        m_startBtn = btn;
+        m_startBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onTouch(view);
+            }
+        });
+    }
     public boolean onTouch(View v)
     {
         if (v.getId() == m_startBtn.getId())

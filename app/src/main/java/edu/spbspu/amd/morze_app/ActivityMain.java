@@ -9,6 +9,7 @@ import android.graphics.*;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
 
@@ -160,9 +161,8 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       m_viewSenderParams = new ViewSenderParams(this);
       Log.d(ActivityMain.APP_NAME, "Switch to senderParams view" );
       setContentView(R.layout.sample_view_sender_params);
-      m_viewSenderParams.m_text = findViewById(R.id.editText4);
-      m_viewSenderParams.m_repeat = findViewById(R.id.repeatBtn);
-      m_viewSenderParams.m_startBtn = findViewById(R.id.buttonStart);
+      m_viewSenderParams.setParams((EditText) findViewById(R.id.editText4), (CheckBox) findViewById(R.id.repeatBtn),
+              (Button) findViewById(R.id.buttonStart));
     }
   }
 
@@ -201,8 +201,6 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       return m_viewIntro.onTouch( x, y, touchType);
     if (m_viewCur == VIEW_MENU)
       return m_viewMenu.onTouch(x, y, touchType);
-    if (m_viewCur == VIEW_SENDER_PARAMS)
-      return m_viewSenderParams.onTouch(v);
 
     return true;
   }
