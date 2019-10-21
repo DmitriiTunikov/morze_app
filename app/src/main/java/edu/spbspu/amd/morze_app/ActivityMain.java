@@ -11,6 +11,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 
 import java.util.Locale;
 
+import edu.spbspu.amd.morze_app.sender.VIewSenderParams;
 import edu.spbspu.amd.morze_app.sender.AppSender;
 import edu.spbspu.amd.morze_app.sender.ViewSender;
 
@@ -30,6 +31,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   public static final int	VIEW_MENU 		= 1;
   public static final int	VIEW_PLAY		  = 2;
   public static final int	VIEW_SENDER		  = 3;
+  public static final int	VIEW_SENDER_PARAMS		  = 4;
 
   public static final int MODE_SOURCE_SHAPE	= 0;
   public static final int MODE_KNACK_PACK   = 1;
@@ -149,6 +151,10 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       Log.d(ActivityMain.APP_NAME, "Switch to sender view" );
       setContentView(m_viewSender);
       m_viewSender.start();
+    }
+    if (m_viewCur == VIEW_SENDER_PARAMS)
+    {
+      setContentView(new VIewSenderParams(this));
     }
   }
 
