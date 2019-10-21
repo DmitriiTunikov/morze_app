@@ -56,11 +56,7 @@ public class AppSender {
             else if (sym == '-')
             {
                 colors.add(Color.WHITE);
-                colors.add(Color.BLACK);
-
                 colors.add(Color.WHITE);
-                colors.add(Color.BLACK);
-
                 colors.add(Color.WHITE);
                 colors.add(Color.BLACK);
             }
