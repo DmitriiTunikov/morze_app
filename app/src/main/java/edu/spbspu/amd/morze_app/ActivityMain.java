@@ -8,12 +8,15 @@ import android.view.*;
 import android.graphics.*;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
 
 import java.util.Locale;
 
-import edu.spbspu.amd.morze_app.sender.VIewSenderParams;
 import edu.spbspu.amd.morze_app.sender.AppSender;
 import edu.spbspu.amd.morze_app.sender.ViewSender;
+import edu.spbspu.amd.morze_app.sender.ViewSenderParams;
 
 
 public class ActivityMain extends Activity implements View.OnTouchListener, OnCompletionListener
@@ -49,6 +52,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   private ViewIntro  m_viewIntro;
   private ViewMenu	  m_viewMenu;
   private ViewSender m_viewSender;
+  private ViewSenderParams m_viewSenderParams;
 
   // screen dim
   private int        m_screenW;
@@ -102,7 +106,6 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     //create app_sender
     m_appSender = new AppSender(this);
 
-
     // Create view
     setView(VIEW_INTRO);
   }
@@ -154,7 +157,12 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     }
     if (m_viewCur == VIEW_SENDER_PARAMS)
     {
-      setContentView(new VIewSenderParams(this));
+      m_viewSenderParams = new ViewSenderParams(this);
+      Log.d(ActivityMain.APP_NAME, "Switch to senderParams view" );
+      setContentView(R.layout.sample_view_sender_params);
+      m_viewSenderParams.m_text = findViewById(R.id.editText4);
+      m_viewSenderParams.m_repeat = findViewById(R.id.repeatBtn);
+      m_viewSenderParams.m_startBtn = findViewById(R.id.buttonStart);
     }
   }
 
@@ -193,6 +201,8 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       return m_viewIntro.onTouch( x, y, touchType);
     if (m_viewCur == VIEW_MENU)
       return m_viewMenu.onTouch(x, y, touchType);
+    if (m_viewCur == VIEW_SENDER_PARAMS)
+      return m_viewSenderParams.onTouch(v);
 
     return true;
   }
