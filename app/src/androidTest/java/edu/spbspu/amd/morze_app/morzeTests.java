@@ -33,6 +33,7 @@ public class morzeTests
     //encode
     String strToEncode = "aem kek lol";
     char[] encodedStr = MorzeСoder.encode(strToEncode);
+    System.out.println(encodedStr);
 
     //decode
     StringBuffer decodeResStr = new StringBuffer();

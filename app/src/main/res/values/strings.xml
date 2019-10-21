@@ -9,6 +9,8 @@
     <string name="str_toweb">To web site</string>
     <string name="str_start">Start</string>
     <string name="str_show">Show</string>
+    <string name="str_send">Send</string>
+    <string name="str_receive">Receive</string>
     <string name="str_pack">Knack pack</string>
     <string name="str_completed">completed</string>
     <string name="str_press_to_start">Touch screen to start packing</string>
