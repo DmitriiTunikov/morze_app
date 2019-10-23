@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "edu.spbspu.amd.lab_kp"
+        applicationId "edu.spbspu.amd.morze_app"
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 1
@@ -15,6 +15,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 
@@ -28,4 +31,5 @@ dependencies {
     androidTestImplementation 'junit:junit:4.12'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
+    testImplementation 'junit:junit:4.11'
 }

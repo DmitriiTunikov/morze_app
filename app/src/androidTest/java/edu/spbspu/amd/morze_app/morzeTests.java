@@ -27,7 +27,8 @@ import static org.junit.Assert.fail;
 public class morzeTests
 {
   @Test
-  public void testMorzeAlgoDecode(){
+  public void testMorzeAlgoDecode()
+  {
     MorzeСoder morzeDecoder = new MorzeСoder();
 
     //encode
