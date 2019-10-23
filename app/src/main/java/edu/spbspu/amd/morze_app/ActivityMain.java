@@ -2,17 +2,24 @@ package edu.spbspu.amd.morze_app;
 
 import android.app.Activity;
 import android.content.res.Configuration;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.graphics.*;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.RadioButton;
 
 import java.util.Locale;
 
+import edu.spbspu.amd.morze_app.receiver.ViewReceiver;
 import edu.spbspu.amd.morze_app.sender.AppSender;
 import edu.spbspu.amd.morze_app.sender.ViewSender;
+import edu.spbspu.amd.morze_app.sender.ViewSenderParams;
 
 
 public class ActivityMain extends Activity implements View.OnTouchListener, OnCompletionListener
@@ -28,9 +35,10 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
 
   public static final int	VIEW_INTRO		= 0;
   public static final int	VIEW_MENU 		= 1;
-  public static final int	VIEW_PLAY		  = 2;
   public static final int	VIEW_SENDER		  = 3;
-
+  public static final int	VIEW_SENDER_PARAMS		  = 4;
+  public static final int   VIEW_RECEIVER   = 5;
+  
   public static final int MODE_SOURCE_SHAPE	= 0;
   public static final int MODE_KNACK_PACK   = 1;
 
@@ -44,9 +52,11 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   private AppMenu    m_appMenu;
   private AppSender m_appSender;
 
-  private ViewIntro  m_viewIntro;
-  private ViewMenu	  m_viewMenu;
-  private ViewSender m_viewSender;
+  private ViewIntro    m_viewIntro;
+  private ViewMenu	   m_viewMenu;
+  private ViewSender   m_viewSender;
+  private ViewReceiver m_viewReceiver;
+  private ViewSenderParams m_viewSenderParams;
 
   // screen dim
   private int        m_screenW;
@@ -100,9 +110,12 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     //create app_sender
     m_appSender = new AppSender(this);
 
-
     // Create view
-    setView(VIEW_INTRO);
+    if (m_viewCur == -1) {
+      setView(VIEW_INTRO);
+    } else {
+      setView(m_viewCur);
+    }
   }
 
   public AppIntro getAppIntro()
@@ -150,33 +163,36 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       setContentView(m_viewSender);
       m_viewSender.start();
     }
+    if (m_viewCur == VIEW_RECEIVER)
+    {
+      Log.d(ActivityMain.APP_NAME, "Switch to receiver's view");
+      setContentView(R.layout.sample_view_camera);
+      m_viewReceiver = new ViewReceiver(this, (SurfaceView)findViewById(R.id.surfaceView), Camera.open(0));
+    if (m_viewCur == VIEW_SENDER_PARAMS)
+    {
+      m_viewSenderParams = new ViewSenderParams(this);
+      Log.d(ActivityMain.APP_NAME, "Switch to senderParams view" );
+      setContentView(R.layout.sample_view_sender_params);
+      m_viewSenderParams.setParams((EditText) findViewById(R.id.editText4), (CheckBox) findViewById(R.id.repeatBtn),
+              (Button) findViewById(R.id.buttonStart));
+    }
   }
 
   protected void onPostCreate(Bundle savedInstanceState)
   {
     super.onPostCreate(savedInstanceState);
-
-    // Trigger the initial hide() shortly after the activity has been
-    // created, to briefly hint to the user that UI controls
-    // are available.
-
-    // delayedHide(100);
   }
+
   public void onCompletion(MediaPlayer mp)
   {
     Log.d(ActivityMain.APP_NAME, "onCompletion: Video play is completed");
-    //switchToGame();
   }
-
 
   public boolean onTouch(View v, MotionEvent evt)
   {
     int x = (int)evt.getX();
     int y = (int)evt.getY();
     int touchType = AppIntro.TOUCH_DOWN;
-
-    //if (evt.getAction() == MotionEvent.ACTION_DOWN)
-    //  Log.d("DCT", "Touch pressed (ACTION_DOWN) at (" + String.valueOf(x) + "," + String.valueOf(y) +  ")"  );
 
     if (evt.getAction() == MotionEvent.ACTION_MOVE)
       touchType = AppIntro.TOUCH_MOVE;
@@ -190,13 +206,26 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
 
     return true;
   }
+
   public boolean onKeyDown(int keyCode, KeyEvent evt)
   {
-    if (keyCode == KeyEvent.KEYCODE_BACK)
-    {
-      if (m_viewCur == VIEW_MENU)
-      {
+    if (keyCode == KeyEvent.KEYCODE_BACK) {
+      if (m_viewCur == VIEW_MENU) {
         setView(VIEW_INTRO);
+        return true;
+      } 
+      if (m_viewCur == VIEW_RECEIVER) {
+        setView(VIEW_MENU);
+        return true;
+      }
+      if (m_viewCur == VIEW_SENDER_PARAMS)
+      {
+        setView(VIEW_MENU);
+        return true;
+      }
+      if (m_viewCur == VIEW_SENDER)
+      {
+        setView(VIEW_MENU);
         return true;
       }
       if (m_viewCur == VIEW_PLAY)
@@ -207,8 +236,8 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
           setView(VIEW_MENU);
         return true;
       }
-      //Log.d("DCT", "Back key pressed");
     }
+
     boolean ret = super.onKeyDown(keyCode, evt);
     return ret;
   }
@@ -220,8 +249,10 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       m_viewIntro.start();
     if (m_viewCur == VIEW_MENU)
       m_viewMenu.start();
-    //Log.d(ActivityMain.APP_NAME, "App onResume");
+    if (m_viewCur == VIEW_RECEIVER)
+      m_viewReceiver.onResume(Camera.open(0));
   }
+
   protected void onPause()
   {
     // stop anims
@@ -229,6 +260,8 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       m_viewIntro.stop();
     if (m_viewCur == VIEW_MENU)
       m_viewMenu.stop();
+    if (m_viewCur == VIEW_RECEIVER)
+      m_viewReceiver.onPause();
 
     // complete system
     super.onPause();
@@ -240,12 +273,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     {
       //m_viewMenu.onDestroy();
     }
+
     super.onDestroy();
-    //Log.d("DCT", "App onDestroy");
-  }
-  public void onConfigurationChanged(Configuration confNew)
-  {
-    super.onConfigurationChanged(confNew);
-    m_viewIntro.onConfigurationChanged(confNew);
   }
 }

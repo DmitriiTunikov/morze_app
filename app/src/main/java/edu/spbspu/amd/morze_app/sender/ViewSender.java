@@ -29,7 +29,7 @@ public class ViewSender extends View {
             this.removeMessages(0);
             sendMessageDelayed(obtainMessage(0), delayMillis);
         }
-    };
+    }
 
     // CONST
     private static final int UPDATE_TIME_MS = 30;
@@ -79,6 +79,7 @@ public class ViewSender extends View {
         if (m_active)
             m_handler.sleep(UPDATE_TIME_MS);
     }
+
     public boolean onTouch(int x, int y, int evtType)
     {
         AppSender app = m_app.getAppSender();
