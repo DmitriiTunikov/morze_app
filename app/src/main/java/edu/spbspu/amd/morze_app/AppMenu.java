@@ -128,11 +128,13 @@ public class AppMenu
     if (touchType != AppIntro.TOUCH_DOWN)
       return false;
 
-    int stateNext = ActivityMain.VIEW_SENDER;
-    if (m_rectSend.contains(x, y)) {
-      stateNext = ActivityMain.VIEW_SENDER;
-      m_ctx.getAppSender().refreshSender(100, false, MorzeСoder.encode("abc"));
-    } else if (m_rectReceive.contains(x, y)) {
+    int stateNext = ActivityMain.VIEW_SENDER_PARAMS;
+    if (m_rectSend.contains(x, y)) 
+    {
+      stateNext = ActivityMain.VIEW_SENDER_PARAMS;
+    } 
+    else if (m_rectReceive.contains(x, y)) 
+    {
         stateNext = ActivityMain.VIEW_RECEIVER;
     }
 

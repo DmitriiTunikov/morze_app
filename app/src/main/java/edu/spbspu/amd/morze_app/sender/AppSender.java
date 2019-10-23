@@ -13,18 +13,6 @@ import edu.spbspu.amd.morze_app.AppIntro;
 
 public class AppSender {
     private ActivityMain m_ctx;
-    private final TimerTask m_task = new TimerTask() {
-        public void run() {
-            if (m_cur_color_idx == colors.size() - 1 && !m_need_repeat) {
-                m_cur_color_idx = -1;
-                cancel();
-            }
-            else
-                m_cur_color_idx = (m_cur_color_idx + 1) % colors.size();
-            Log.d(ActivityMain.APP_NAME, "change color:" + m_cur_color_idx);
-        }
-    };
-
     private Timer m_timer;
 
     // rect
@@ -56,11 +44,7 @@ public class AppSender {
             else if (sym == '-')
             {
                 colors.add(Color.WHITE);
-                colors.add(Color.BLACK);
-
                 colors.add(Color.WHITE);
-                colors.add(Color.BLACK);
-
                 colors.add(Color.WHITE);
                 colors.add(Color.BLACK);
             }
@@ -87,6 +71,17 @@ public class AppSender {
 
     private void initTimer()
     {
+        TimerTask m_task = new TimerTask() {
+            public void run() {
+                if (m_cur_color_idx == colors.size() - 1 && !m_need_repeat) {
+                    m_cur_color_idx = -1;
+                    cancel();
+                }
+                else
+                    m_cur_color_idx = (m_cur_color_idx + 1) % colors.size();
+                Log.d(ActivityMain.APP_NAME, "change color:" + m_cur_color_idx);
+            }
+        };
         m_timer.scheduleAtFixedRate(m_task, 100L, m_point_time);
     }
 

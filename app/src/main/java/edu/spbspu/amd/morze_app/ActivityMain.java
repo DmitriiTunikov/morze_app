@@ -9,12 +9,17 @@ import android.view.*;
 import android.graphics.*;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.RadioButton;
 
 import java.util.Locale;
 
 import edu.spbspu.amd.morze_app.receiver.ViewReceiver;
 import edu.spbspu.amd.morze_app.sender.AppSender;
 import edu.spbspu.amd.morze_app.sender.ViewSender;
+import edu.spbspu.amd.morze_app.sender.ViewSenderParams;
 
 
 public class ActivityMain extends Activity implements View.OnTouchListener, OnCompletionListener
@@ -30,9 +35,10 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
 
   public static final int	VIEW_INTRO		= 0;
   public static final int	VIEW_MENU 		= 1;
-  public static final int	VIEW_SENDER		= 3;
+  public static final int	VIEW_SENDER		  = 3;
+  public static final int	VIEW_SENDER_PARAMS		  = 4;
   public static final int   VIEW_RECEIVER   = 5;
-
+  
   public static final int MODE_SOURCE_SHAPE	= 0;
   public static final int MODE_KNACK_PACK   = 1;
 
@@ -50,6 +56,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   private ViewMenu	   m_viewMenu;
   private ViewSender   m_viewSender;
   private ViewReceiver m_viewReceiver;
+  private ViewSenderParams m_viewSenderParams;
 
   // screen dim
   private int        m_screenW;
@@ -102,7 +109,6 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     m_appMenu = new AppMenu(this, language);
     //create app_sender
     m_appSender = new AppSender(this);
-
 
     // Create view
     if (m_viewCur == -1) {
@@ -162,24 +168,24 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       Log.d(ActivityMain.APP_NAME, "Switch to receiver's view");
       setContentView(R.layout.sample_view_camera);
       m_viewReceiver = new ViewReceiver(this, (SurfaceView)findViewById(R.id.surfaceView), Camera.open(0));
+    if (m_viewCur == VIEW_SENDER_PARAMS)
+    {
+      m_viewSenderParams = new ViewSenderParams(this);
+      Log.d(ActivityMain.APP_NAME, "Switch to senderParams view" );
+      setContentView(R.layout.sample_view_sender_params);
+      m_viewSenderParams.setParams((EditText) findViewById(R.id.editText4), (CheckBox) findViewById(R.id.repeatBtn),
+              (Button) findViewById(R.id.buttonStart));
     }
   }
 
   protected void onPostCreate(Bundle savedInstanceState)
   {
     super.onPostCreate(savedInstanceState);
-
-    // Trigger the initial hide() shortly after the activity has been
-    // created, to briefly hint to the user that UI controls
-    // are available.
-
-    // delayedHide(100);
   }
 
   public void onCompletion(MediaPlayer mp)
   {
     Log.d(ActivityMain.APP_NAME, "onCompletion: Video play is completed");
-    //switchToGame();
   }
 
   public boolean onTouch(View v, MotionEvent evt)
@@ -187,9 +193,6 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     int x = (int)evt.getX();
     int y = (int)evt.getY();
     int touchType = AppIntro.TOUCH_DOWN;
-
-    //if (evt.getAction() == MotionEvent.ACTION_DOWN)
-    //  Log.d("DCT", "Touch pressed (ACTION_DOWN) at (" + String.valueOf(x) + "," + String.valueOf(y) +  ")"  );
 
     if (evt.getAction() == MotionEvent.ACTION_MOVE)
       touchType = AppIntro.TOUCH_MOVE;
@@ -210,8 +213,27 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       if (m_viewCur == VIEW_MENU) {
         setView(VIEW_INTRO);
         return true;
-      } else if (m_viewCur == VIEW_RECEIVER) {
+      } 
+      if (m_viewCur == VIEW_RECEIVER) {
         setView(VIEW_MENU);
+        return true;
+      }
+      if (m_viewCur == VIEW_SENDER_PARAMS)
+      {
+        setView(VIEW_MENU);
+        return true;
+      }
+      if (m_viewCur == VIEW_SENDER)
+      {
+        setView(VIEW_MENU);
+        return true;
+      }
+      if (m_viewCur == VIEW_PLAY)
+      {
+        if (APP_RUN_MODE)
+          setView(VIEW_INTRO);
+        else
+          setView(VIEW_MENU);
         return true;
       }
     }

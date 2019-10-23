@@ -72,7 +72,7 @@ public class MorzeСoder {
 
     /**
      *
-     * @param sym = .|-|&|~|
+     * @param sym = .|-|&|
      *            . = white dot
      *            - = white 3 * dot
      *            & = black 3 * dot is between characters
