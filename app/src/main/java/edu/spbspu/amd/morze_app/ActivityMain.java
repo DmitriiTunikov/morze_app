@@ -135,43 +135,37 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   public int getScreenWidth() { return m_screenW; }
   public int getScreenHeight() { return m_screenH; }
 
-  public void setView(int viewID)
-  {
-    if (m_viewCur == viewID)
-    {
+  public void setView(int viewID) {
+    if (m_viewCur == viewID) {
       Log.d(ActivityMain.APP_NAME, "setView: already set");
       return;
     }
 
     m_viewCur = viewID;
-    if (m_viewCur == VIEW_INTRO)
-    {
+    if (m_viewCur == VIEW_INTRO) {
       m_viewIntro = new ViewIntro(this);
       setContentView(m_viewIntro);
     }
-    if (m_viewCur == VIEW_MENU)
-    {
+    if (m_viewCur == VIEW_MENU) {
       m_viewMenu = new ViewMenu(this);
-      Log.d(ActivityMain.APP_NAME, "Switch to m_viewMenu" );
+      Log.d(ActivityMain.APP_NAME, "Switch to m_viewMenu");
       setContentView(m_viewMenu);
       m_viewMenu.start();
     }
-    if (m_viewCur == VIEW_SENDER)
-    {
+    if (m_viewCur == VIEW_SENDER) {
       m_viewSender = new ViewSender(this);
-      Log.d(ActivityMain.APP_NAME, "Switch to sender view" );
+      Log.d(ActivityMain.APP_NAME, "Switch to sender view");
       setContentView(m_viewSender);
       m_viewSender.start();
     }
-    if (m_viewCur == VIEW_RECEIVER)
-    {
+    if (m_viewCur == VIEW_RECEIVER) {
       Log.d(ActivityMain.APP_NAME, "Switch to receiver's view");
       setContentView(R.layout.sample_view_camera);
-      m_viewReceiver = new ViewReceiver(this, (SurfaceView)findViewById(R.id.surfaceView), Camera.open(0));
-    if (m_viewCur == VIEW_SENDER_PARAMS)
-    {
+      m_viewReceiver = new ViewReceiver(this, (SurfaceView) findViewById(R.id.surfaceView), Camera.open(0));
+    }
+    if (m_viewCur == VIEW_SENDER_PARAMS) {
       m_viewSenderParams = new ViewSenderParams(this);
-      Log.d(ActivityMain.APP_NAME, "Switch to senderParams view" );
+      Log.d(ActivityMain.APP_NAME, "Switch to senderParams view");
       setContentView(R.layout.sample_view_sender_params);
       m_viewSenderParams.setParams((EditText) findViewById(R.id.editText4), (CheckBox) findViewById(R.id.repeatBtn),
               (Button) findViewById(R.id.buttonStart));
@@ -226,14 +220,6 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       if (m_viewCur == VIEW_SENDER)
       {
         setView(VIEW_MENU);
-        return true;
-      }
-      if (m_viewCur == VIEW_PLAY)
-      {
-        if (APP_RUN_MODE)
-          setView(VIEW_INTRO);
-        else
-          setView(VIEW_MENU);
         return true;
       }
     }
