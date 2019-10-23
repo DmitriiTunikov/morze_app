@@ -129,10 +129,15 @@ public class AppMenu
       return false;
 
     int stateNext = ActivityMain.VIEW_SENDER_PARAMS;
-    if (m_rectSend.contains(x, y)) {
+    if (m_rectSend.contains(x, y)) 
+    {
       stateNext = ActivityMain.VIEW_SENDER_PARAMS;
-      //m_ctx.getAppSender().refreshSender(100, false, MorzeСoder.encode("abc"));
+    } 
+    else if (m_rectReceive.contains(x, y)) 
+    {
+        stateNext = ActivityMain.VIEW_RECEIVER;
     }
+
     m_ctx.setView(stateNext);
     return true;
   }
