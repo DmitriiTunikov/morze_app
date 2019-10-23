@@ -169,17 +169,11 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   protected void onPostCreate(Bundle savedInstanceState)
   {
     super.onPostCreate(savedInstanceState);
-
-    // Trigger the initial hide() shortly after the activity has been
-    // created, to briefly hint to the user that UI controls
-    // are available.
-
-    // delayedHide(100);
   }
+
   public void onCompletion(MediaPlayer mp)
   {
     Log.d(ActivityMain.APP_NAME, "onCompletion: Video play is completed");
-    //switchToGame();
   }
 
 
@@ -188,9 +182,6 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     int x = (int)evt.getX();
     int y = (int)evt.getY();
     int touchType = AppIntro.TOUCH_DOWN;
-
-    //if (evt.getAction() == MotionEvent.ACTION_DOWN)
-    //  Log.d("DCT", "Touch pressed (ACTION_DOWN) at (" + String.valueOf(x) + "," + String.valueOf(y) +  ")"  );
 
     if (evt.getAction() == MotionEvent.ACTION_MOVE)
       touchType = AppIntro.TOUCH_MOVE;
@@ -211,6 +202,16 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       if (m_viewCur == VIEW_MENU)
       {
         setView(VIEW_INTRO);
+        return true;
+      }
+      if (m_viewCur == VIEW_SENDER_PARAMS)
+      {
+        setView(VIEW_MENU);
+        return true;
+      }
+      if (m_viewCur == VIEW_SENDER)
+      {
+        setView(VIEW_MENU);
         return true;
       }
       if (m_viewCur == VIEW_PLAY)
