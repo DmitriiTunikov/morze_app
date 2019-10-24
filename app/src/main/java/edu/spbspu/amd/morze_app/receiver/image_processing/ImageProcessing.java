@@ -44,44 +44,46 @@ public class ImageProcessing implements Runnable {
                 int compareRes = compareWithCurrentFrameImage(curImage);
                 Log.d(ActivityMain.APP_NAME, "Comparing finished.");
 
-                if (dotDurationCounting) {
+                if (dotDurationCounting && diffAmount > 0) {
                     dotDurationInFrames++;
-                } else {
+                } else if (diffAmount >= 2){
                     curDurationInFrames++;
                 }
 
                 if (compareRes != 0) {
+                    Log.d(ActivityMain.APP_NAME, "DIFF!!!!");
                     diffAmount++;
                     if (diffAmount == 2) {
                         dotDurationCounting = false;
                         curDurationInFrames++;
                         Log.d(ActivityMain.APP_NAME, "dot duration is " + dotDurationInFrames);
-                        return;
+                        continue;
                     }
 
                     if (diffAmount < 2)
                         continue;
 
-                    if (curDurationInFrames <= dotDurationInFrames + 1 &&
-                            curDurationInFrames >= dotDurationInFrames - 1) {
+                    if (curDurationInFrames <= dotDurationInFrames + 2 &&
+                            curDurationInFrames >= dotDurationInFrames - 2 &&
+                        diffAmount % 2 == 0) {
                         try {
                             morzeСoder.appendSym('.');
                             Log.d(ActivityMain.APP_NAME, "send . to decoder");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 2 &&
-                            curDurationInFrames >= 3 * dotDurationInFrames - 2 &&
-                            diffAmount % 2 == 1) {
+                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
+                            curDurationInFrames >= 3 * dotDurationInFrames - 6 &&
+                            diffAmount % 2 == 0) {
                         try {
                             morzeСoder.appendSym('-');
                             Log.d(ActivityMain.APP_NAME, "send - to decoder");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 2 &&
-                            curDurationInFrames >= 3 * dotDurationInFrames - 2 &&
-                            diffAmount % 2 == 0) {
+                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
+                            curDurationInFrames >= 3 * dotDurationInFrames - 6 &&
+                            diffAmount % 2 == 1) {
                         try {
                             morzeСoder.appendSym('&');
                             Log.d(ActivityMain.APP_NAME, "send & to decoder");
@@ -144,8 +146,8 @@ public class ImageProcessing implements Runnable {
         int width = image.getWidth();
 
         int pixels_count = 0;
-        for (int y = 0; y < height; y += 3) {
-            for (int x = 0; x < width; x += 3) {
+        for (int y = height / 4 ; y < height - height / 4; y += 3) {
+            for (int x = width / 4; x < width - width / 4; x += 3) {
                 pixels_count++;
                 try {
                     int pixel = image.getPixel(x,y);
@@ -162,14 +164,16 @@ public class ImageProcessing implements Runnable {
 
     private boolean isDifferentColors(RGB c1, RGB c2)
     {
-        int epsilon = 100;
+        int epsilonR = 60;
+        int epsilonG = 60;
+        int epsilonB = 60;
 
         Log.d(ActivityMain.APP_NAME, "PrevColor(" + c1.r + "," + c1.g + "," + c1.b + ")");
         Log.d(ActivityMain.APP_NAME, "CurColor(" + c2.r + "," + c2.g + "," + c2.b + ")");
 
-        return (Math.abs(c1.r - c2.r) > epsilon)
-                && (Math.abs(c1.g - c2.g) > epsilon)
-                && (Math.abs(c1.b - c2.b) > epsilon);
+        return (Math.abs(c1.r - c2.r) > epsilonR)
+                && (Math.abs(c1.g - c2.g) > epsilonG)
+                && (Math.abs(c1.b - c2.b) > epsilonB);
     }
 
     private int _isDiffFrom(Bitmap curFrameImage)

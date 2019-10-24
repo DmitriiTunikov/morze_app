@@ -15,16 +15,10 @@ import android.os.Handler;
 import android.widget.TextView;
 
 import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import edu.spbspu.amd.morze_app.ActivityMain;
-import edu.spbspu.amd.morze_app.morzeCoder.MorzeСoder;
 import edu.spbspu.amd.morze_app.receiver.image_processing.ImageProcessing;
-import edu.spbspu.amd.morze_app.receiver.image_processing.*;
 import edu.spbspu.amd.morze_app.sender.AppSender;
 
 
@@ -34,7 +28,7 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
     static public ArrayDeque<Bitmap> m_queue;
     private Thread m_image_proc;
     private TimerTask m_taskSaveImage;
-    private static long m_save_image_interval = AppSender.m_point_time / 10;
+    private static long m_save_image_interval = AppSender.m_point_time;
 
     private ImageProcessing ip;
     private Bitmap          curCameraImage = null;
@@ -112,7 +106,7 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
         //start save image thread
         m_queue = new ArrayDeque<>();
 
-        timer.scheduleAtFixedRate(m_taskSaveImage, AppSender.delay / 2, m_save_image_interval);
+        timer.scheduleAtFixedRate(m_taskSaveImage, AppSender.delay / 2, m_save_image_interval / 5);
 
         //start processing thread
         m_image_proc = new Thread(new ImageProcessing(outputTextView));

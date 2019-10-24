@@ -17,7 +17,7 @@ public class AppSender {
     public static final long delay = 5000L;
 
     // rect
-    public static long m_point_time = 5000L;
+    public static long m_point_time = 1000L;
     private ArrayList<Integer> colors;
     private int m_cur_color_idx;
     private boolean m_need_repeat;
