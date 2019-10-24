@@ -1,6 +1,5 @@
 package edu.spbspu.amd.morze_app.receiver;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -11,7 +10,6 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
-import android.os.Handler;
 import android.widget.TextView;
 
 import java.util.ArrayDeque;
@@ -78,7 +76,6 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
 
     }
 
-    @SuppressLint("HandlerLeak")
     public ViewReceiver(ActivityMain context, TextureView textureSurfaceView,
                         TextView outputTextView, Camera cam) {
         super(context);
@@ -89,6 +86,7 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
         textureView.setSurfaceTextureListener(this);
 
         outputText = outputTextView;
+        outputText.setTextColor(Color.WHITE);
 
         timer = new Timer("Receiver Timer");
 

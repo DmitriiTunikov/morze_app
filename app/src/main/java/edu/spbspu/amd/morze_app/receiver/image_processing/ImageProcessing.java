@@ -1,6 +1,5 @@
 package edu.spbspu.amd.morze_app.receiver.image_processing;
 
-import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
@@ -21,7 +20,6 @@ public class ImageProcessing implements Runnable {
     private int diffAmount = 0;
     private TextView outputText;
 
-    @SuppressLint("SetTextI18n")
     @Override
     public void run() {
         try {
