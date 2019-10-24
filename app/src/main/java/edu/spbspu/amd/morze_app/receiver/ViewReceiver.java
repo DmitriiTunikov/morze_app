@@ -1,75 +1,128 @@
 package edu.spbspu.amd.morze_app.receiver;
 
-import android.app.Activity;
-import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.view.Display;
+import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
+import android.widget.TextView;
 
-import java.io.IOException;
-
+import java.util.ArrayDeque;
+import java.util.Timer;
+import java.util.TimerTask;
 import edu.spbspu.amd.morze_app.ActivityMain;
+import edu.spbspu.amd.morze_app.receiver.image_processing.ImageProcessing;
+import edu.spbspu.amd.morze_app.sender.AppSender;
 
 
-public class ViewReceiver extends View {
-    private SurfaceView    sv;
-    private SurfaceHolder  holder;
-    private HolderCallback holderCallback;
-    private Camera         camera;
+public class ViewReceiver extends View implements TextureView.SurfaceTextureListener {
+    private TextureView textureView;
+    private Camera      camera;
+    static public ArrayDeque<Bitmap> m_queue;
+    private Thread m_image_proc;
+    private TimerTask m_taskSaveImage;
+    private static long m_save_image_interval = AppSender.m_point_time;
 
+    private ImageProcessing ip;
+    private Bitmap          curCameraImage = null;
+    private TextView        outputText;
+
+    private Timer   timer;
     private ActivityMain  m_ctx;
-
-    private final int CAMERA_ID = 0;
 
     private int sv_width, sv_height;
 
-    private class HolderCallback implements SurfaceHolder.Callback {
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            try {
-                camera.setPreviewDisplay(holder);
-                camera.startPreview();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        setCameraDisplayOrientation(0);
+        try {
+            camera.setPreviewTexture(surface);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            sv_height = height;
-            sv_width = width;
+        camera.startPreview();
+    }
 
-            camera.stopPreview();
-            setCameraDisplayOrientation(CAMERA_ID);
-            try {
-                camera.setPreviewDisplay(holder);
-                camera.startPreview();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
+        sv_height = height;
+        sv_width = width;
 
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-
+        camera.stopPreview();
+        setCameraDisplayOrientation(0);
+        try {
+            camera.setPreviewTexture(surfaceTexture);
+            camera.startPreview();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public ViewReceiver(ActivityMain context, SurfaceView surfaceView, Camera cam) {
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+        camera.stopPreview();
+        camera.release();
+        return true;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+
+    }
+
+    public ViewReceiver(ActivityMain context, TextureView textureSurfaceView,
+                        TextView outputTextView, Camera cam) {
         super(context);
         m_ctx = context;
         camera = cam;
 
-        sv = surfaceView;
-        holder = sv.getHolder();
+        textureView = textureSurfaceView;
+        textureView.setSurfaceTextureListener(this);
 
-        holderCallback = new HolderCallback();
-        holder.addCallback(holderCallback);
+        outputText = outputTextView;
+        outputText.setTextColor(Color.WHITE);
+
+        timer = new Timer("Receiver Timer");
+
+        m_taskSaveImage = new TimerTask() {
+            @Override
+            public void run() {
+                curCameraImage = textureView.getBitmap();
+                if (curCameraImage != null) {
+                    m_queue.addLast(curCameraImage);
+                    Log.d(ActivityMain.APP_NAME, "add to queue");
+                }
+            }
+        };
+
+        //start save image thread
+        m_queue = new ArrayDeque<>();
+
+        timer.scheduleAtFixedRate(m_taskSaveImage, AppSender.delay / 2, m_save_image_interval / 5);
+
+        //start processing thread
+        m_image_proc = new Thread(new ImageProcessing(outputTextView));
+        m_image_proc.start();
+        /*try{
+            m_image_proc.join();
+        }
+        catch(InterruptedException e){
+            System.out.printf("%s has been interrupted", m_image_proc.getName());
+        }*/
+    }
+
+    public void interrupt()
+    {
+        m_image_proc.interrupt();
+        m_taskSaveImage.cancel();
+        timer.cancel();
+        m_queue.clear();
     }
 
     public void onResume(Camera cam) {
@@ -119,8 +172,8 @@ public class ViewReceiver extends View {
         matrix.mapRect(rectPreview);
 
         // установка размеров surface из получившегося преобразования
-        sv.getLayoutParams().height = (int) (rectPreview.bottom);
-        sv.getLayoutParams().width = (int) (rectPreview.right);
+        textureView.getLayoutParams().height = (int) (rectPreview.bottom);
+        textureView.getLayoutParams().width = (int) (rectPreview.right);
     }
 
     void setCameraDisplayOrientation(int cameraId) {

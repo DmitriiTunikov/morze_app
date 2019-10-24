@@ -47,23 +47,11 @@ public class ViewSenderParams extends View {
         if (v.getId() == m_startBtn.getId())
         {
             AppSender appSender = m_ctx.getAppSender();
-            appSender.refreshSender(100, m_repeat.isChecked(), MorzeСoder.encode(m_text.getText().toString()));
+            appSender.refreshSender(AppSender.m_point_time, m_repeat.isChecked(),
+                    MorzeСoder.encode(m_text.getText().toString()));
             m_ctx.setView(ActivityMain.VIEW_SENDER);
         }
 
         return true;
     }
-
-    /*
-    @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        if (view.getId() == m_startBtn.getId())
-        {
-            AppSender appSender = m_ctx.getAppSender();
-            appSender.refreshSender(100, m_repeat.isChecked(), MorzeСoder.encode(m_text.getText().toString()));
-            m_ctx.setView(ActivityMain.VIEW_SENDER);
-            return true;
-        }
-        return false;
-    }*/
 }
