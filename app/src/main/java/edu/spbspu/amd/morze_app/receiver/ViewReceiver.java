@@ -102,8 +102,10 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
             @Override
             public void run() {
                 curCameraImage = textureView.getBitmap();
-                m_queue.addLast(curCameraImage);
-                Log.d(ActivityMain.APP_NAME, "add to queue");
+                if (curCameraImage != null) {
+                    m_queue.addLast(curCameraImage);
+                    Log.d(ActivityMain.APP_NAME, "add to queue");
+                }
             }
         };
 
@@ -115,6 +117,12 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
         //start processing thread
         m_image_proc = new Thread(new ImageProcessing(outputTextView));
         m_image_proc.start();
+        /*try{
+            m_image_proc.join();
+        }
+        catch(InterruptedException e){
+            System.out.printf("%s has been interrupted", m_image_proc.getName());
+        }*/
     }
 
     public void interrupt()

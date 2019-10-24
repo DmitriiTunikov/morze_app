@@ -24,16 +24,21 @@ public class ImageProcessing implements Runnable {
     @SuppressLint("SetTextI18n")
     @Override
     public void run() {
-        try{
-            while (true)
-            {
-                if (Thread.interrupted())
+        try {
+            Log.d(ActivityMain.APP_NAME, "start proccess thread");
+            while (true) {
+                if (Thread.interrupted()) {
+                    Log.d(ActivityMain.APP_NAME, "interrupt proccess thread");
                     return;
+                }
 
-                Bitmap curImage = ViewReceiver.m_queue.pop();
-                Log.d(ActivityMain.APP_NAME, "pop from queue");
-                if (curImage == null)
+                Bitmap curImage;
+                if (ViewReceiver.m_queue.peek() != null)
+                    curImage = ViewReceiver.m_queue.pop();
+                else
                     continue;
+
+                Log.d(ActivityMain.APP_NAME, "pop from queue");
 
                 Log.d(ActivityMain.APP_NAME, "Comparing started.");
                 int compareRes = compareWithCurrentFrameImage(curImage);
@@ -102,9 +107,9 @@ public class ImageProcessing implements Runnable {
                 }
             }
         }
-        catch (Exception ignored)
+        catch (Exception e)
         {
-
+            e.printStackTrace();
         }
     }
 
@@ -159,8 +164,8 @@ public class ImageProcessing implements Runnable {
     {
         int epsilon = 100;
 
-        Log.d(ActivityMain.APP_NAME, "PrevColor(" + c1.r + "," + c1.g + "," + c1.b);
-        Log.d(ActivityMain.APP_NAME, "PrevColor(" + c2.r + "," + c2.g + "," + c2.b);
+        Log.d(ActivityMain.APP_NAME, "PrevColor(" + c1.r + "," + c1.g + "," + c1.b + ")");
+        Log.d(ActivityMain.APP_NAME, "CurColor(" + c2.r + "," + c2.g + "," + c2.b + ")");
 
         return (Math.abs(c1.r - c2.r) > epsilon)
                 && (Math.abs(c1.g - c2.g) > epsilon)

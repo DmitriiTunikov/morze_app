@@ -1,10 +1,14 @@
 package edu.spbspu.amd.morze_app;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.*;
 import android.graphics.*;
@@ -41,7 +45,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   public static final int	VIEW_SENDER		   = 3;
   public static final int	VIEW_SENDER_PARAMS = 4;
   public static final int   VIEW_RECEIVER      = 5;
-  
+
 
   // *************************************************
   // DATA
@@ -99,6 +103,8 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       language = AppIntro.LANGUAGE_UNKNOWN;
     }
 
+    CameraPermision();
+
     // Create application intro
     m_appIntro = new AppIntro(this, language);
     // Create application menu
@@ -131,6 +137,26 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     }*/
   }
 
+  private void CameraPermision()
+  {
+    // Here, thisActivity is the current activity
+    if (ContextCompat.checkSelfPermission(this,
+            Manifest.permission.READ_CONTACTS)
+            != PackageManager.PERMISSION_GRANTED) {
+
+      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+              Manifest.permission.READ_CONTACTS)) {
+      } else {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_CONTACTS},
+                1);
+
+      }
+    }
+    else
+      {
+    }
+  }
   public AppIntro getAppIntro()
   {
     return m_appIntro;
