@@ -6,11 +6,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <SurfaceView
-        android:id="@+id/surfaceView"
-        android:layout_width="0dp"
-        android:layout_height="253dp"
+    <TextureView
+        android:id="@+id/textureView"
+        android:layout_width="409dp"
+        android:layout_height="525dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        app2:layout_constraintBottom_toTopOf="@+id/decodedTextView"
         app2:layout_constraintEnd_toEndOf="parent"
+        app2:layout_constraintHorizontal_bias="0.166"
         app2:layout_constraintStart_toStartOf="parent"
-        app2:layout_constraintTop_toTopOf="parent" />
+        app2:layout_constraintTop_toTopOf="parent"
+        app2:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/decodedTextView"
+        android:layout_width="338dp"
+        android:layout_height="31dp"
+        android:layout_marginBottom="128dp"
+        android:textColor="#00E60D0D"
+        android:textSize="24sp"
+        app2:layout_constraintBottom_toBottomOf="parent"
+        app2:layout_constraintEnd_toEndOf="parent"
+        app2:layout_constraintHorizontal_bias="0.506"
+        app2:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>
