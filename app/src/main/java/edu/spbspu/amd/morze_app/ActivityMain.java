@@ -24,6 +24,7 @@ import edu.spbspu.amd.morze_app.receiver.image_processing.ImageProcessing;
 import edu.spbspu.amd.morze_app.sender.AppSender;
 import edu.spbspu.amd.morze_app.sender.ViewSender;
 import edu.spbspu.amd.morze_app.sender.ViewSenderParams;
+import edu.spbspu.amd.morze_app.receiver.image_processing.*;
 
 
 public class ActivityMain extends Activity implements View.OnTouchListener, OnCompletionListener
@@ -112,27 +113,22 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       setView(m_viewCur);
     }
 
+    /*
     // HACK!!!!! -> testing ImageProcessing
-//    BitmapFactory.Options options = new BitmapFactory.Options();
-//    options.inScaled = false;
-//
-//    Bitmap image1 = BitmapFactory.decodeResource(getResources(), R.drawable.test_image_processing_1, options);
-//    Bitmap image2 = BitmapFactory.decodeResource(getResources(), R.drawable.test_image_processing_2, options);
-//
-//    ImageProcessing ip = new ImageProcessing();
-//    ip.compareWithCurrentFrameImage(image1);
-//    int res = ip.compareWithCurrentFrameImage(image2);
-//
-//    if (res != 0) {
-//      int newColor = ip.getNewAverageColor();
-//      int r = ip.getColorR(newColor);
-//      int g = ip.getColorG(newColor);
-//      int b = ip.getColorB(newColor);
-//
-//      if (r > 240 && g > 240 && b > 240) {
-//        Log.d(ActivityMain.APP_NAME, "Success image processing test!");
-//      }
-//    }
+    BitmapFactory.Options options = new BitmapFactory.Options();
+    options.inScaled = false;
+
+    Bitmap image1 = BitmapFactory.decodeResource(getResources(), R.drawable.test_image_processing_1, options);
+    Bitmap image2 = BitmapFactory.decodeResource(getResources(), R.drawable.test_image_processing_2, options);
+
+    ImageProcessing ip = new ImageProcessing();
+    ip.compareWithCurrentFrameImage(image1);
+    int res = ip.compareWithCurrentFrameImage(image2);
+
+    if (res != 0) {
+      ImageProcessing.RGB newColor = ip.getNewAverageColor();
+      Log.d(ActivityMain.APP_NAME, "Success image processing test!");
+    }*/
   }
 
   public AppIntro getAppIntro()

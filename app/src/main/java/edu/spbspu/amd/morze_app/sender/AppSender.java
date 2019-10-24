@@ -14,9 +14,10 @@ import edu.spbspu.amd.morze_app.AppIntro;
 public class AppSender {
     private ActivityMain m_ctx;
     private Timer m_timer;
+    public static final long delay = 5000L;
 
     // rect
-    private int m_point_time;
+    public static long m_point_time = 5000L;
     private ArrayList<Integer> colors;
     private int m_cur_color_idx;
     private boolean m_need_repeat;
@@ -60,7 +61,7 @@ public class AppSender {
         m_cur_color_idx = 0;
     }
 
-    public void setPointTime(int pointTime)
+    public void setPointTime(long pointTime)
     {
         m_point_time = pointTime;
     }
@@ -83,10 +84,10 @@ public class AppSender {
                 Log.d(ActivityMain.APP_NAME, "change color:" + m_cur_color_idx);
             }
         };
-        m_timer.scheduleAtFixedRate(m_task, 5000L, m_point_time);
+        m_timer.scheduleAtFixedRate(m_task, delay, m_point_time);
     }
 
-    public void refreshSender(int point_time, boolean need_to_repeat, char[] text)
+    public void refreshSender(long point_time, boolean need_to_repeat, char[] text)
     {
         setNeedRepeat(need_to_repeat);
         setPointTime(point_time);

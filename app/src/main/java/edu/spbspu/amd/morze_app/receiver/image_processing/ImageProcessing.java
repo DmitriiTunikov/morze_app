@@ -1,101 +1,126 @@
 package edu.spbspu.amd.morze_app.receiver.image_processing;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.RadialGradient;
-import android.util.Pair;
+import android.util.Log;
+import android.widget.TextView;
 
-public class ImageProcessing {
-    static class RGB implements Cloneable
-    {
-        public Object clone()
-        {
-            try {
-                return super.clone();
-            }
-            catch (Exception ignored)
+import edu.spbspu.amd.morze_app.ActivityMain;
+import edu.spbspu.amd.morze_app.morzeCoder.MorzeСoder;
+import edu.spbspu.amd.morze_app.receiver.ColorsSupp;
+import edu.spbspu.amd.morze_app.receiver.ViewReceiver;
+import edu.spbspu.amd.morze_app.receiver.ColorsSupp.*;
+
+
+public class ImageProcessing implements Runnable {
+
+    private MorzeСoder morzeСoder = new MorzeСoder();
+    private int     dotDurationInFrames = 0;
+    private int     curDurationInFrames = 0;
+    private boolean dotDurationCounting = true;
+    private int diffAmount = 0;
+    private TextView outputText;
+
+    @SuppressLint("SetTextI18n")
+    @Override
+    public void run() {
+        try{
+            while (true)
             {
-                return null;
+                if (Thread.interrupted())
+                    return;
+
+                Bitmap curImage = ViewReceiver.m_queue.poll();
+                if (curImage == null)
+                    continue;
+
+                Log.d(ActivityMain.APP_NAME, "Comparing started.");
+                int compareRes = compareWithCurrentFrameImage(curImage);
+                Log.d(ActivityMain.APP_NAME, "Comparing finished.");
+
+                if (dotDurationCounting) {
+                    dotDurationInFrames++;
+                } else {
+                    curDurationInFrames++;
+                }
+
+                if (compareRes != 0) {
+                    diffAmount++;
+                    if (diffAmount == 2) {
+                        dotDurationCounting = false;
+                        curDurationInFrames++;
+                        Log.d(ActivityMain.APP_NAME, "dot duration is " + dotDurationInFrames);
+                        return;
+                    }
+
+                    if (diffAmount < 2)
+                        continue;
+
+                    if (curDurationInFrames <= dotDurationInFrames + 1 &&
+                            curDurationInFrames >= dotDurationInFrames - 1) {
+                        try {
+                            morzeСoder.appendSym('.');
+                            Log.d(ActivityMain.APP_NAME, "send . to decoder");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 2 &&
+                            curDurationInFrames >= 3 * dotDurationInFrames - 2 &&
+                            diffAmount % 2 == 1) {
+                        try {
+                            morzeСoder.appendSym('-');
+                            Log.d(ActivityMain.APP_NAME, "send - to decoder");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 2 &&
+                            curDurationInFrames >= 3 * dotDurationInFrames - 2 &&
+                            diffAmount % 2 == 0) {
+                        try {
+                            morzeСoder.appendSym('&');
+                            Log.d(ActivityMain.APP_NAME, "send & to decoder");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if ((morzeСoder.canDecode())) {
+                        char curSym = '#';
+                        try {
+                            curSym = morzeСoder.getDecodedSym();
+                            Log.d(ActivityMain.APP_NAME, "new symbol is " + curSym);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        outputText.setText(outputText.getText().toString() + curSym);
+                    }
+
+                    curDurationInFrames = 0;
+                } else {
+                    Log.d(ActivityMain.APP_NAME, "Identical images.");
+                }
             }
         }
-
-        RGB(int r_, int g_, int b_)
+        catch (Exception ignored)
         {
-            r = r_;
-            g = g_;
-            b = b_;
-        }
 
-        void incrementColor(int r_, int g_, int b_)
-        {
-            r += r_;
-            g += g_;
-            b += b_;
         }
-
-        void devideColors(int devider)
-        {
-            r = r / devider;
-            g = g / devider;
-            b = b / devider;
-        }
-
-        void setZeroColor()
-        {
-            r = 0;
-            g = 0;
-            b = 0;
-        }
-
-        int r;
-        int g;
-        int b;
     }
 
-    static class AverageColors
+    ImageProcessing(TextView outputText_)
     {
-        AverageColors(RGB prev_, RGB cur_)
-        {
-            prev = prev_;
-            cur = cur_;
-        }
-
-        void setZeroColors()
-        {
-            prev.setZeroColor();
-            cur.setZeroColor();
-        }
-
-        void deviceColors(int devicer)
-        {
-            prev.devideColors(devicer);
-            cur.devideColors(devicer);
-        }
-
-        RGB prev;
-        RGB cur;
+        outputText = outputText_;
     }
 
-
-    private boolean first = true;
     private Bitmap m_prevFrameImage = null;
-    private static int epsilon;
-    private RGB m_prevAverageColor;
-    private int m_newAverageColor = -1;
-
-    private static AverageColors m_averageColors;
-    static {
-        m_averageColors = new AverageColors(new RGB(0, 0, 0), new RGB(0, 0, 0 ));
-        epsilon = 100;
-    }
-
-    private final int LIMIT_DIFF_PIXEL_NUM = 7000;
-    private final int MISMATCH_COLOR = 0x80ff0000;
+    private AverageColors m_averageColors = new AverageColors(new RGB(0, 0, 0), new RGB(0, 0, 0 ));
 
     public int compareWithCurrentFrameImage(Bitmap curFrameImage)
     {
         if (m_prevFrameImage == null) {
             m_prevFrameImage = curFrameImage;
+            getAvarageColor(curFrameImage, m_averageColors.cur);
             return 0;
         }
 
@@ -105,53 +130,21 @@ public class ImageProcessing {
         return res;
     }
 
-    public int getNewAverageColor()
-    {
-        return m_newAverageColor;
-    }
-
-    public Bitmap getPrevFrameImage()
-    {
-        return m_prevFrameImage;
-    }
-
-    public int getColorA(int color)
-    {
-        return 0xff & color >> 24;
-    }
-
-    public int getColorR(int color)
-    {
-        return 0xff & color >> 16;
-    }
-
-    public int getColorG(int color)
-    {
-        return 0xff & color >> 8;
-    }
-
-    public int getColorB(int color)
-    {
-        return 0xff & color;
-    }
-
-    private void getAvarageColor(Bitmap cur) {
-        //prev = last current
-        m_averageColors.prev = (RGB) m_averageColors.cur.clone();
+    private void getAvarageColor(Bitmap image, ColorsSupp.RGB col) {
 
         //count average for new current
-        m_averageColors.cur.setZeroColor();
+        col.setZeroColor();
 
-        int height = cur.getHeight();
-        int width = cur.getWidth();
+        int height = image.getHeight();
+        int width = image.getWidth();
 
         int pixels_count = 0;
         for (int y = 0; y < height; y += 3) {
             for (int x = 0; x < width; x += 3) {
                 pixels_count++;
                 try {
-                    int pixel = cur.getPixel(x,y);
-                    m_averageColors.cur.incrementColor(Color.red(pixel), Color.green(pixel), Color.blue(pixel));
+                    int pixel = image.getPixel(x,y);
+                    col.incrementColor(Color.red(pixel), Color.green(pixel), Color.blue(pixel));
                 }
                 catch (Exception ignored)
                 {
@@ -159,11 +152,12 @@ public class ImageProcessing {
             }
         }
 
-        m_averageColors.cur.devideColors(pixels_count);
+        col.devideColors(pixels_count);
     }
 
     private boolean isDifferentColors(RGB c1, RGB c2)
     {
+        int epsilon = 100;
         return (Math.abs(c1.r - c2.r) > epsilon)
                 && (Math.abs(c1.g - c2.g) > epsilon)
                 && (Math.abs(c1.b - c2.b) > epsilon);
@@ -171,7 +165,10 @@ public class ImageProcessing {
 
     private int _isDiffFrom(Bitmap curFrameImage)
     {
-        getAvarageColor(curFrameImage);
+        //prev = last current
+        m_averageColors.prev = (ColorsSupp.RGB) m_averageColors.cur.clone();
+
+        getAvarageColor(curFrameImage, m_averageColors.cur);
 
         return isDifferentColors(m_averageColors.prev, m_averageColors.cur) ? 1 : 0;
     }
