@@ -3,10 +3,11 @@ package edu.spbspu.amd.morze_app.receiver.image_processing;
 import android.graphics.Bitmap;
 
 public class ImageProcessing {
+    private boolean first = true;
     private Bitmap m_prevFrameImage = null;
     private int m_newAverageColor = -1;
 
-    private final int LIMIT_DIFF_PIXEL_NUM = 100;
+    private final int LIMIT_DIFF_PIXEL_NUM = 7000;
     private final int MISMATCH_COLOR = 0x80ff0000;
 
     public int compareWithCurrentFrameImage(Bitmap curFrameImage)
@@ -16,7 +17,10 @@ public class ImageProcessing {
             return 0;
         }
 
-        return _isDiffFrom(curFrameImage);
+        int res = _isDiffFrom(curFrameImage);
+        m_prevFrameImage = curFrameImage;
+
+        return res;
     }
 
     public int getNewAverageColor()
@@ -24,22 +28,27 @@ public class ImageProcessing {
         return m_newAverageColor;
     }
 
-    private int _getColorA(int color)
+    public Bitmap getPrevFrameImage()
+    {
+        return m_prevFrameImage;
+    }
+
+    public int getColorA(int color)
     {
         return 0xff & color >> 24;
     }
 
-    private int _getColorR(int color)
+    public int getColorR(int color)
     {
         return 0xff & color >> 16;
     }
 
-    private int _getColorG(int color)
+    public int getColorG(int color)
     {
         return 0xff & color >> 8;
     }
 
-    private int _getColorB(int color)
+    public int getColorB(int color)
     {
         return 0xff & color;
     }
@@ -51,8 +60,8 @@ public class ImageProcessing {
         int height = curFrameImage.getHeight();
         int width = curFrameImage.getWidth();
 
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y+=3) {
+            for (int x = 0; x < width; x+=3) {
                 try {
                     int pixelC = curFrameImage.getPixel(x, y);
                     int pixelB = m_prevFrameImage.getPixel(x, y);
@@ -61,12 +70,7 @@ public class ImageProcessing {
                     }
 
                     curDiffPixelNum++;
-                    int a = _getColorA(pixelC);
-                    int r = _getColorR(pixelC);
-                    int g = _getColorG(pixelC);
-                    int b = _getColorB(pixelC);
-
-                    diffPixelValueSum += (a << 24) | (r << 16) | (g << 8) | b;
+                    diffPixelValueSum += pixelC;
                 } catch (Exception e) {
                     // handled height or width mismatch
                     diffPixelValueSum += MISMATCH_COLOR;
@@ -76,7 +80,24 @@ public class ImageProcessing {
 
         boolean isDiff = curDiffPixelNum >= LIMIT_DIFF_PIXEL_NUM;
         if (isDiff) {
+            int oldAverageColor = m_newAverageColor;
             m_newAverageColor = diffPixelValueSum / curDiffPixelNum;
+
+            if (first) {
+                first = false;
+            } else {
+                int new_r = getColorR(m_newAverageColor);
+                int new_g = getColorG(m_newAverageColor);
+                int new_b = getColorB(m_newAverageColor);
+
+                int r = getColorR(oldAverageColor);
+                int g = getColorG(oldAverageColor);
+                int b = getColorB(oldAverageColor);
+
+                if (Math.abs(new_r - r) <= 100 && Math.abs(new_g - g) <= 100 && Math.abs(new_b - b) <= 100) {
+                    isDiff = false;
+                }
+            }
         }
 
         return isDiff ? 1 : 0;

@@ -1,75 +1,216 @@
 package edu.spbspu.amd.morze_app.receiver;
 
-import android.app.Activity;
-import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.view.Display;
+import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
+import android.widget.ImageView;
+import android.os.Handler;
+import android.widget.TextView;
 
-import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import edu.spbspu.amd.morze_app.ActivityMain;
+import edu.spbspu.amd.morze_app.morzeCoder.MorzeСoder;
+import edu.spbspu.amd.morze_app.receiver.image_processing.ImageProcessing;
 
 
-public class ViewReceiver extends View {
-    private SurfaceView    sv;
-    private SurfaceHolder  holder;
-    private HolderCallback holderCallback;
-    private Camera         camera;
+public class ViewReceiver extends View implements TextureView.SurfaceTextureListener {
+    private TextureView textureView;
+    private Camera      camera;
+
+    private ImageProcessing ip;
+    private ImageView       ivOld;
+    private ImageView       ivNew;
+    private Bitmap          curCameraImage = null;
+    private TextView        outputText;
+
+    private Timer   timer;
+    private Handler h;
 
     private ActivityMain  m_ctx;
 
-    private final int CAMERA_ID = 0;
-
     private int sv_width, sv_height;
 
-    private class HolderCallback implements SurfaceHolder.Callback {
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            try {
-                camera.setPreviewDisplay(holder);
-                camera.startPreview();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    private MorzeСoder morzeСoder = new MorzeСoder();
+    private int     dotDurationInFrames = 0;
+    private int     curDurationInFrames = 0;
+    private boolean dotDurationCounting = true;
+
+    private int oldColor;
+
+    private int diffAmount = 0;
+
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        setCameraDisplayOrientation(0);
+        try {
+            camera.setPreviewTexture(surface);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            sv_height = height;
-            sv_width = width;
+        camera.startPreview();
+    }
 
-            camera.stopPreview();
-            setCameraDisplayOrientation(CAMERA_ID);
-            try {
-                camera.setPreviewDisplay(holder);
-                camera.startPreview();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
+        sv_height = height;
+        sv_width = width;
 
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-
+        camera.stopPreview();
+        setCameraDisplayOrientation(0);
+        try {
+            camera.setPreviewTexture(surfaceTexture);
+            camera.startPreview();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public ViewReceiver(ActivityMain context, SurfaceView surfaceView, Camera cam) {
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+        camera.stopPreview();
+        camera.release();
+        return true;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+
+    }
+
+    public ViewReceiver(ActivityMain context, TextureView textureSurfaceView,
+                        ImageView imageViewOld, ImageView imageViewNew,
+                        TextView outputTextView, Camera cam) {
         super(context);
         m_ctx = context;
         camera = cam;
 
-        sv = surfaceView;
-        holder = sv.getHolder();
+        textureView = textureSurfaceView;
+        textureView.setSurfaceTextureListener(this);
+        ivOld = imageViewOld;
+        ivNew = imageViewNew;
 
-        holderCallback = new HolderCallback();
-        holder.addCallback(holderCallback);
+        outputText = outputTextView;
+
+        timer = new Timer("Receiver Timer");
+        ip = new ImageProcessing();
+
+        h = new Handler() {
+            public void handleMessage(android.os.Message msg) {
+                if (diffAmount == 0) {
+                    ivOld.setImageBitmap(curCameraImage);
+                    ivNew.setImageBitmap(curCameraImage);
+                } else {
+                    ivOld.setImageBitmap(ip.getPrevFrameImage());
+                    ivNew.setImageBitmap(curCameraImage);
+                }
+
+                Log.d(ActivityMain.APP_NAME, "Comparing started.");
+                int compareRes = ip.compareWithCurrentFrameImage(curCameraImage);
+                Log.d(ActivityMain.APP_NAME, "Comparing finished.");
+
+                if (dotDurationCounting) {
+                    dotDurationInFrames++;
+                } else if (diffAmount >= 2) {
+                    curDurationInFrames++;
+                }
+
+                if (compareRes != 0) {
+                    curDurationInFrames = 0;
+                    diffAmount++;
+                    if (diffAmount == 2) {
+                        curDurationInFrames++;
+                    }
+
+                    if (dotDurationCounting) {
+                        dotDurationCounting = false;
+                        return;
+                    }
+
+                    int newColor = ip.getNewAverageColor();
+                    if (diffAmount == 1) {
+                        oldColor = newColor;
+                    }
+
+                    int r = ip.getColorR(newColor);
+                    int g = ip.getColorG(newColor);
+                    int b = ip.getColorB(newColor);
+
+                    int old_r = ip.getColorR(oldColor);
+                    int old_g = ip.getColorG(oldColor);
+                    int old_b = ip.getColorB(oldColor);
+
+                    if (diffAmount > 1) {
+                        Log.d(ActivityMain.APP_NAME, "Old color: " + old_r + " " + old_g + " " + old_b);
+                    }
+                    Log.d(ActivityMain.APP_NAME, "New color: " + r + " " + g + " " + b);
+
+                    if (curDurationInFrames <= dotDurationInFrames + 1 ||
+                            curDurationInFrames >= dotDurationInFrames - 1) {
+                        try {
+                            morzeСoder.appendSym('.');
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 2 &&
+                            curDurationInFrames >= 3 * dotDurationInFrames - 2 &&
+                            old_r >= 190 && old_r >= 190 && old_b >= 190) {
+                        try {
+                            morzeСoder.appendSym('-');
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 2 &&
+                            curDurationInFrames >= 3 * dotDurationInFrames - 2 &&
+                            old_r <= 50 && old_g <= 50 && old_b <= 50) {
+                        try {
+                            morzeСoder.appendSym('&');
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if ((morzeСoder.canDecode())) {
+                        char curSym = '#';
+                        try {
+                            curSym = morzeСoder.getDecodedSym();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        outputText.setText(outputText.getText().toString() + curSym);
+                    }
+
+                    oldColor = newColor;
+                } else {
+                    Log.d(ActivityMain.APP_NAME, "Identical.");
+                }
+            }
+        };
+
+        TimerTask taskSaveImage = new TimerTask() {
+            @Override
+            public void run() {
+                curCameraImage = textureView.getBitmap();
+            }
+        };
+
+        TimerTask taskProcessImage = new TimerTask() {
+            @Override
+            public void run() {
+                h.sendEmptyMessage(0);
+            }
+        };
+
+        timer.scheduleAtFixedRate(taskSaveImage, 7800L, 2200L);
+        timer.scheduleAtFixedRate(taskProcessImage, 7850L, 2150L);
     }
 
     public void onResume(Camera cam) {
@@ -119,8 +260,8 @@ public class ViewReceiver extends View {
         matrix.mapRect(rectPreview);
 
         // установка размеров surface из получившегося преобразования
-        sv.getLayoutParams().height = (int) (rectPreview.bottom);
-        sv.getLayoutParams().width = (int) (rectPreview.right);
+        textureView.getLayoutParams().height = (int) (rectPreview.bottom);
+        textureView.getLayoutParams().width = (int) (rectPreview.right);
     }
 
     void setCameraDisplayOrientation(int cameraId) {

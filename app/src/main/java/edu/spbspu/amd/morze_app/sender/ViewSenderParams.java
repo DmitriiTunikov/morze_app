@@ -47,7 +47,7 @@ public class ViewSenderParams extends View {
         if (v.getId() == m_startBtn.getId())
         {
             AppSender appSender = m_ctx.getAppSender();
-            appSender.refreshSender(100, m_repeat.isChecked(), MorzeСoder.encode(m_text.getText().toString()));
+            appSender.refreshSender(5000, m_repeat.isChecked(), MorzeСoder.encode(m_text.getText().toString()));
             m_ctx.setView(ActivityMain.VIEW_SENDER);
         }
 

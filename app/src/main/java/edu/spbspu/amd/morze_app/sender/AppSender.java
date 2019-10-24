@@ -26,13 +26,14 @@ public class AppSender {
         //rerash colors
         colors = new ArrayList<>();
         //add 10 black point for waiting receiver ready
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 2; i++)
         {
             colors.add(Color.BLACK);
         }
 
         //add first white point
         colors.add(Color.WHITE);
+        colors.add(Color.BLACK);
 
         for (char sym : text)
         {
@@ -82,7 +83,7 @@ public class AppSender {
                 Log.d(ActivityMain.APP_NAME, "change color:" + m_cur_color_idx);
             }
         };
-        m_timer.scheduleAtFixedRate(m_task, 100L, m_point_time);
+        m_timer.scheduleAtFixedRate(m_task, 5000L, m_point_time);
     }
 
     public void refreshSender(int point_time, boolean need_to_repeat, char[] text)

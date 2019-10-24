@@ -6,11 +6,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <SurfaceView
-        android:id="@+id/surfaceView"
-        android:layout_width="0dp"
-        android:layout_height="253dp"
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="160dp"
+        android:layout_height="140dp"
+        android:src="@mipmap/ic_launcher"
+        app2:layout_constraintBottom_toBottomOf="parent"
+        app2:layout_constraintEnd_toEndOf="parent"
+        app2:layout_constraintHorizontal_bias="0.063"
+        app2:layout_constraintStart_toStartOf="parent"
+        app2:layout_constraintTop_toBottomOf="@+id/textureView"
+        app2:layout_constraintVertical_bias="0.498" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="160dp"
+        android:layout_height="140dp"
+        android:src="@mipmap/ic_launcher"
+        app2:layout_constraintBottom_toBottomOf="parent"
+        app2:layout_constraintEnd_toEndOf="parent"
+        app2:layout_constraintHorizontal_bias="0.936"
+        app2:layout_constraintStart_toStartOf="parent"
+        app2:layout_constraintTop_toBottomOf="@+id/textureView"
+        app2:layout_constraintVertical_bias="0.498" />
+
+    <TextureView
+        android:id="@+id/textureView"
+        android:layout_width="160dp"
+        android:layout_height="140dp"
+        app2:layout_constraintBottom_toBottomOf="parent"
+        app2:layout_constraintEnd_toEndOf="parent"
+        app2:layout_constraintHorizontal_bias="0.147"
+        app2:layout_constraintStart_toStartOf="parent"
+        app2:layout_constraintTop_toTopOf="parent"
+        app2:layout_constraintVertical_bias="0.192" />
+
+    <TextView
+        android:id="@+id/decodedTextView"
+        android:layout_width="338dp"
+        android:layout_height="31dp"
+        android:textColor="#00E60D0D"
+        android:textSize="24sp"
+        app2:layout_constraintBottom_toBottomOf="parent"
         app2:layout_constraintEnd_toEndOf="parent"
         app2:layout_constraintStart_toStartOf="parent"
-        app2:layout_constraintTop_toTopOf="parent" />
+        app2:layout_constraintTop_toBottomOf="@+id/imageView" />
 </android.support.constraint.ConstraintLayout>
