@@ -1,6 +1,7 @@
 package edu.spbspu.amd.morze_app.receiver;
 
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
@@ -26,8 +27,6 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
     private Camera      camera;
 
     private ImageProcessing ip;
-    private ImageView       ivOld;
-    private ImageView       ivNew;
     private Bitmap          curCameraImage = null;
     private TextView        outputText;
 
@@ -43,7 +42,7 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
     private int     curDurationInFrames = 0;
     private boolean dotDurationCounting = true;
 
-    private int oldColor;
+    private int oldColor = Color.BLACK;
 
     private int diffAmount = 0;
 
@@ -87,7 +86,6 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
     }
 
     public ViewReceiver(ActivityMain context, TextureView textureSurfaceView,
-                        ImageView imageViewOld, ImageView imageViewNew,
                         TextView outputTextView, Camera cam) {
         super(context);
         m_ctx = context;
@@ -95,8 +93,6 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
 
         textureView = textureSurfaceView;
         textureView.setSurfaceTextureListener(this);
-        ivOld = imageViewOld;
-        ivNew = imageViewNew;
 
         outputText = outputTextView;
 
@@ -105,40 +101,25 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
 
         h = new Handler() {
             public void handleMessage(android.os.Message msg) {
-                if (diffAmount == 0) {
-                    ivOld.setImageBitmap(curCameraImage);
-                    ivNew.setImageBitmap(curCameraImage);
-                } else {
-                    ivOld.setImageBitmap(ip.getPrevFrameImage());
-                    ivNew.setImageBitmap(curCameraImage);
-                }
-
                 Log.d(ActivityMain.APP_NAME, "Comparing started.");
                 int compareRes = ip.compareWithCurrentFrameImage(curCameraImage);
                 Log.d(ActivityMain.APP_NAME, "Comparing finished.");
 
                 if (dotDurationCounting) {
                     dotDurationInFrames++;
-                } else if (diffAmount >= 2) {
+                } else {
                     curDurationInFrames++;
                 }
 
                 if (compareRes != 0) {
-                    curDurationInFrames = 0;
                     diffAmount++;
                     if (diffAmount == 2) {
-                        curDurationInFrames++;
-                    }
-
-                    if (dotDurationCounting) {
                         dotDurationCounting = false;
+                        curDurationInFrames++;
                         return;
                     }
 
                     int newColor = ip.getNewAverageColor();
-                    if (diffAmount == 1) {
-                        oldColor = newColor;
-                    }
 
                     int r = ip.getColorR(newColor);
                     int g = ip.getColorG(newColor);
@@ -148,12 +129,10 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
                     int old_g = ip.getColorG(oldColor);
                     int old_b = ip.getColorB(oldColor);
 
-                    if (diffAmount > 1) {
-                        Log.d(ActivityMain.APP_NAME, "Old color: " + old_r + " " + old_g + " " + old_b);
-                    }
+                    Log.d(ActivityMain.APP_NAME, "Old color: " + old_r + " " + old_g + " " + old_b);
                     Log.d(ActivityMain.APP_NAME, "New color: " + r + " " + g + " " + b);
 
-                    if (curDurationInFrames <= dotDurationInFrames + 1 ||
+                    if (curDurationInFrames <= dotDurationInFrames + 1 &&
                             curDurationInFrames >= dotDurationInFrames - 1) {
                         try {
                             morzeСoder.appendSym('.');
@@ -189,6 +168,7 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
                     }
 
                     oldColor = newColor;
+                    curDurationInFrames = 0;
                 } else {
                     Log.d(ActivityMain.APP_NAME, "Identical.");
                 }
