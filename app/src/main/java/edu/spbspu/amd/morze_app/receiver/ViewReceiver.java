@@ -14,6 +14,9 @@ import android.view.View;
 import android.os.Handler;
 import android.widget.TextView;
 
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,15 +31,16 @@ import edu.spbspu.amd.morze_app.sender.AppSender;
 public class ViewReceiver extends View implements TextureView.SurfaceTextureListener {
     private TextureView textureView;
     private Camera      camera;
-    static public Queue<Bitmap> m_queue;
+    static public ArrayDeque<Bitmap> m_queue;
+    private Thread m_image_proc;
+    private TimerTask m_taskSaveImage;
+    private static long m_save_image_interval = AppSender.m_point_time / 10;
 
     private ImageProcessing ip;
     private Bitmap          curCameraImage = null;
     private TextView        outputText;
 
     private Timer   timer;
-    private Handler h;
-
     private ActivityMain  m_ctx;
 
     private int sv_width, sv_height;
@@ -94,15 +98,31 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
 
         timer = new Timer("Receiver Timer");
 
-        TimerTask taskSaveImage = new TimerTask() {
+        m_taskSaveImage = new TimerTask() {
             @Override
             public void run() {
                 curCameraImage = textureView.getBitmap();
-                m_queue.offer(curCameraImage);
+                m_queue.addLast(curCameraImage);
+                Log.d(ActivityMain.APP_NAME, "add to queue");
             }
         };
 
-        timer.scheduleAtFixedRate(taskSaveImage, AppSender.delay, AppSender.m_point_time / 3);
+        //start save image thread
+        m_queue = new ArrayDeque<>();
+
+        timer.scheduleAtFixedRate(m_taskSaveImage, AppSender.delay / 2, m_save_image_interval);
+
+        //start processing thread
+        m_image_proc = new Thread(new ImageProcessing(outputTextView));
+        m_image_proc.start();
+    }
+
+    public void interrupt()
+    {
+        m_image_proc.interrupt();
+        m_taskSaveImage.cancel();
+        timer.cancel();
+        m_queue.clear();
     }
 
     public void onResume(Camera cam) {

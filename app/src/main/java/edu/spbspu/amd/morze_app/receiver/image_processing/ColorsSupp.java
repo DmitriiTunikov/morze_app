@@ -1,4 +1,4 @@
-package edu.spbspu.amd.morze_app.receiver;
+package edu.spbspu.amd.morze_app.receiver.image_processing;
 
 public class ColorsSupp {
     public static class RGB implements Cloneable

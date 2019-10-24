@@ -8,9 +8,8 @@ import android.widget.TextView;
 
 import edu.spbspu.amd.morze_app.ActivityMain;
 import edu.spbspu.amd.morze_app.morzeCoder.MorzeСoder;
-import edu.spbspu.amd.morze_app.receiver.ColorsSupp;
 import edu.spbspu.amd.morze_app.receiver.ViewReceiver;
-import edu.spbspu.amd.morze_app.receiver.ColorsSupp.*;
+import edu.spbspu.amd.morze_app.receiver.image_processing.ColorsSupp.*;
 
 
 public class ImageProcessing implements Runnable {
@@ -31,7 +30,8 @@ public class ImageProcessing implements Runnable {
                 if (Thread.interrupted())
                     return;
 
-                Bitmap curImage = ViewReceiver.m_queue.poll();
+                Bitmap curImage = ViewReceiver.m_queue.pop();
+                Log.d(ActivityMain.APP_NAME, "pop from queue");
                 if (curImage == null)
                     continue;
 
@@ -108,7 +108,7 @@ public class ImageProcessing implements Runnable {
         }
     }
 
-    ImageProcessing(TextView outputText_)
+    public ImageProcessing(TextView outputText_)
     {
         outputText = outputText_;
     }
@@ -116,7 +116,7 @@ public class ImageProcessing implements Runnable {
     private Bitmap m_prevFrameImage = null;
     private AverageColors m_averageColors = new AverageColors(new RGB(0, 0, 0), new RGB(0, 0, 0 ));
 
-    public int compareWithCurrentFrameImage(Bitmap curFrameImage)
+    private int compareWithCurrentFrameImage(Bitmap curFrameImage)
     {
         if (m_prevFrameImage == null) {
             m_prevFrameImage = curFrameImage;
@@ -158,6 +158,10 @@ public class ImageProcessing implements Runnable {
     private boolean isDifferentColors(RGB c1, RGB c2)
     {
         int epsilon = 100;
+
+        Log.d(ActivityMain.APP_NAME, "PrevColor(" + c1.r + "," + c1.g + "," + c1.b);
+        Log.d(ActivityMain.APP_NAME, "PrevColor(" + c2.r + "," + c2.g + "," + c2.b);
+
         return (Math.abs(c1.r - c2.r) > epsilon)
                 && (Math.abs(c1.g - c2.g) > epsilon)
                 && (Math.abs(c1.b - c2.b) > epsilon);

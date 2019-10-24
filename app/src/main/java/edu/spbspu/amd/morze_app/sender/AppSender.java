@@ -27,10 +27,10 @@ public class AppSender {
         //rerash colors
         colors = new ArrayList<>();
         //add 10 black point for waiting receiver ready
-        for (int i = 0; i < 2; i++)
+        /*for (int i = 0; i < 2; i++)
         {
             colors.add(Color.BLACK);
-        }
+        }*/
 
         //add first white point
         colors.add(Color.WHITE);
@@ -76,7 +76,7 @@ public class AppSender {
         TimerTask m_task = new TimerTask() {
             public void run() {
                 if (m_cur_color_idx == colors.size() - 1 && !m_need_repeat) {
-                    m_cur_color_idx = -1;
+                    m_cur_color_idx = -2;
                     cancel();
                 }
                 else
@@ -92,7 +92,7 @@ public class AppSender {
         setNeedRepeat(need_to_repeat);
         setPointTime(point_time);
         setText(text);
-        m_cur_color_idx = 0;
+        m_cur_color_idx = -1;
         initTimer();
     }
 
@@ -114,8 +114,13 @@ public class AppSender {
 
     public void drawCanvas(Canvas canvas) throws InterruptedException {
         //THE END
-        if (m_cur_color_idx == -1) {
+        if (m_cur_color_idx == -2) {
             canvas.drawColor(Color.RED);
+            return;
+        }
+        else if (m_cur_color_idx == -1)
+        {
+            canvas.drawColor(Color.BLACK);
             return;
         }
 

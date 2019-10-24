@@ -172,7 +172,6 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       Log.d(ActivityMain.APP_NAME, "Switch to receiver's view");
       setContentView(R.layout.sample_view_camera);
       m_viewReceiver = new ViewReceiver(this, (TextureView) findViewById(R.id.textureView),
-              (ImageView) findViewById(R.id.imageView),(ImageView) findViewById(R.id.imageView2),
               (TextView) findViewById(R.id.decodedTextView), Camera.open(0));
     } else if (m_viewCur == VIEW_SENDER_PARAMS) {
       m_viewSenderParams = new ViewSenderParams(this);
@@ -221,6 +220,7 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
         setView(VIEW_INTRO);
         return true;
       } else if (m_viewCur == VIEW_RECEIVER) {
+        m_viewReceiver.interrupt();
         setView(VIEW_MENU);
         return true;
       } else if (m_viewCur == VIEW_SENDER_PARAMS) {
