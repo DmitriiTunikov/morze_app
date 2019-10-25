@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Locale;
 
@@ -45,6 +47,8 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
   public static final int	VIEW_SENDER		   = 3;
   public static final int	VIEW_SENDER_PARAMS = 4;
   public static final int   VIEW_RECEIVER      = 5;
+
+  public static final int   REQUEST_CODE_PERMISSION_CAMERA = 1;
 
 
   // *************************************************
@@ -139,24 +143,26 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
 
   private void CameraPermision()
   {
-    // Here, thisActivity is the current activity
-    if (ContextCompat.checkSelfPermission(this,
-            Manifest.permission.READ_CONTACTS)
-            != PackageManager.PERMISSION_GRANTED) {
-
-      if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-              Manifest.permission.READ_CONTACTS)) {
-      } else {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_CONTACTS},
-                1);
-
-      }
-    }
-    else
-      {
+    int permissionStatus = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+    if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA},
+                REQUEST_CODE_PERMISSION_CAMERA);
     }
   }
+
+  @Override
+  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    if (requestCode == REQUEST_CODE_PERMISSION_CAMERA) {
+      if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        // permission granted
+      } else {
+        // permission denied
+        Toast.makeText(this, "Permission for camera is denied! Exiting.", Toast.LENGTH_LONG).show();
+        finish();
+      }
+    }
+  }
+
   public AppIntro getAppIntro()
   {
     return m_appIntro;
