@@ -3,6 +3,7 @@ package edu.spbspu.amd.morze_app.receiver.image_processing;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.TextView;
 
 import edu.spbspu.amd.morze_app.ActivityMain;
@@ -118,27 +119,37 @@ public class ImageProcessing implements Runnable {
         outputText = outputText_;
     }
 
-    private Bitmap m_prevFrameImage = null;
-    private AverageColors m_averageColors = new AverageColors(new RGB(0, 0, 0), new RGB(0, 0, 0 ));
+    private int x_start_watch = 0;
+    private static int x_delta = 0;
+    private int y_start_watch = 0;
+    private static int y_delta = 0;
+
+    private static final int x_rect_count = 4;
+    private static final int y_rect_count = 5;
+
+    private AverageColorsParams m_averageColorsParams = null;
 
     private int compareWithCurrentFrameImage(Bitmap curFrameImage)
     {
-        if (m_prevFrameImage == null) {
-            m_prevFrameImage = curFrameImage;
-            getAvarageColor(curFrameImage, m_averageColors.cur);
+        if (m_averageColorsParams == null) {
+            m_averageColorsParams = new AverageColorsParams();
+
+            x_delta = curFrameImage.getWidth() / x_rect_count;
+            y_delta = curFrameImage.getWidth() / y_rect_count;
+
+            getAvarageColor(curFrameImage, m_averageColorsParams.cur);
             return 0;
         }
 
-        int res = _isDiffFrom(curFrameImage);
-        m_prevFrameImage = curFrameImage;
-
-        return res;
+        return _isDiffFrom(curFrameImage);
     }
 
-    private void getAvarageColor(Bitmap image, ColorsSupp.RGB col) {
+    //count average for new current
+    private void getAvarageColor(Bitmap image, AverageColorParam col_params) {
+        RGB col = col_params.color;
 
-        //count average for new current
         col.setZeroColor();
+        col_params.intensity = 0;
 
         int height = image.getHeight();
         int width = image.getWidth();
@@ -158,29 +169,29 @@ public class ImageProcessing implements Runnable {
         }
 
         col.devideColors(pixels_count);
+        col_params.intensity = (int) (0.299 * col.r + 0.587 * col.g + 0.114 * col.b);
     }
 
-    private boolean isDifferentColors(RGB c1, RGB c2)
+    private boolean isDifferentColors(AverageColorParam param1, AverageColorParam param2)
     {
         int epsilonR = 60;
         int epsilonG = 60;
         int epsilonB = 60;
+        int epsilonIntensity = 50;
 
-        Log.d(ActivityMain.APP_NAME, "PrevColor(" + c1.r + "," + c1.g + "," + c1.b + ")");
-        Log.d(ActivityMain.APP_NAME, "CurColor(" + c2.r + "," + c2.g + "," + c2.b + ")");
+        Log.d(ActivityMain.APP_NAME, "PrevColor(" + param1.color.r + "," + param1.color.g + "," + param1.color.b + ")");
+        Log.d(ActivityMain.APP_NAME, "CurColor(" + param2.color.r + "," + param2.color.g + "," + param2.color.b + ")");
 
-        return (Math.abs(c1.r - c2.r) > epsilonR)
-                && (Math.abs(c1.g - c2.g) > epsilonG)
-                && (Math.abs(c1.b - c2.b) > epsilonB);
+        return Math.abs(param1.intensity - param2.intensity) > epsilonIntensity;
     }
 
     private int _isDiffFrom(Bitmap curFrameImage)
     {
         //prev = last current
-        m_averageColors.prev = (ColorsSupp.RGB) m_averageColors.cur.clone();
+        m_averageColorsParams.prev = (ColorsSupp.AverageColorParam) m_averageColorsParams.prev.clone();
 
-        getAvarageColor(curFrameImage, m_averageColors.cur);
+        getAvarageColor(curFrameImage, m_averageColorsParams.cur);
 
-        return isDifferentColors(m_averageColors.prev, m_averageColors.cur) ? 1 : 0;
+        return isDifferentColors(m_averageColorsParams.prev, m_averageColorsParams.cur) ? 1 : 0;
     }
 }

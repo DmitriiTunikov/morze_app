@@ -47,6 +47,18 @@ public class ColorsSupp {
         public int b;
     }
 
+    public static class AverageIntensities
+    {
+        public AverageIntensities(int prev_, int cur_)
+        {
+            prev = prev_;
+            cur = cur_;
+        }
+
+        public Integer prev;
+        public Integer cur;
+    }
+
     public static class AverageColors
     {
         public AverageColors(RGB prev_, RGB cur_)
@@ -58,5 +70,43 @@ public class ColorsSupp {
         public RGB prev;
         public RGB cur;
     }
+
+    public static class AverageColorParam implements Cloneable
+    {
+        public Object clone()
+        {
+            try {
+                return super.clone();
+            }
+            catch (Exception ignored)
+            {
+                return null;
+            }
+        }
+
+        public AverageColorParam()
+        {
+            color = new RGB(0, 0, 0);
+            intensity = 0;
+        }
+
+        public RGB color;
+        public Integer intensity;
+    }
+
+    public static class AverageColorsParams
+    {
+        public AverageColorsParams()
+        {
+            prev = new AverageColorParam();
+            cur = new AverageColorParam();
+        }
+
+        public AverageColorParam prev;
+        public AverageColorParam cur;
+    }
+
+
+
 
 }
