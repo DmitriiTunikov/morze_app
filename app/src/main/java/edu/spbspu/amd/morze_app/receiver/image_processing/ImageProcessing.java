@@ -6,6 +6,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 import edu.spbspu.amd.morze_app.ActivityMain;
 import edu.spbspu.amd.morze_app.morzeCoder.MorzeСoder;
 import edu.spbspu.amd.morze_app.receiver.ViewReceiver;
@@ -39,8 +41,18 @@ public class ImageProcessing implements Runnable {
 
                 Log.d(ActivityMain.APP_NAME, "pop from queue");
 
-                Log.d(ActivityMain.APP_NAME, "Comparing started.");
-                int compareRes = compareWithCurrentFrameImage(curImage);
+                int compareRes = 0;
+                if (!correctRectListFound)
+                {
+                    Log.d(ActivityMain.APP_NAME, "Comparing before rectFound started.");
+                    compareRes = compareWithCurrentFrameImageBeforeReadyRects(curImage);
+                }
+                else
+                {
+                    Log.d(ActivityMain.APP_NAME, "Comparing into correct Rectangles started.");
+                    compareRes = compareWithCurrentFrameImage(curImage);
+                }
+
                 Log.d(ActivityMain.APP_NAME, "Comparing finished.");
 
                 if (dotDurationCounting && diffAmount > 0) {
@@ -114,49 +126,86 @@ public class ImageProcessing implements Runnable {
         }
     }
 
+    private ArrayList<AverageColorsParams> m_averageColorsParamsCorrectRectList;
+    private boolean correctRectListFound;
+    private ArrayList<AverageColorsParams> m_averageColorsParamsList;
     public ImageProcessing(TextView outputText_)
     {
         outputText = outputText_;
+        correctRectListFound = false;
+        m_averageColorsParamsCorrectRectList = new ArrayList<>();
+        m_averageColorsParamsList = null;
     }
 
-    private int x_start_watch = 0;
     private static int x_delta = 0;
-    private int y_start_watch = 0;
     private static int y_delta = 0;
-
     private static final int x_rect_count = 4;
     private static final int y_rect_count = 5;
 
-    private AverageColorsParams m_averageColorsParams = null;
-
-    private int compareWithCurrentFrameImage(Bitmap curFrameImage)
+    private int compareWithCurrentFrameImageBeforeReadyRects(Bitmap curFrameImage)
     {
-        if (m_averageColorsParams == null) {
-            m_averageColorsParams = new AverageColorsParams();
-
+        int res = 0;
+        if (m_averageColorsParamsList == null)
+        {
             x_delta = curFrameImage.getWidth() / x_rect_count;
             y_delta = curFrameImage.getWidth() / y_rect_count;
 
-            getAvarageColor(curFrameImage, m_averageColorsParams.cur);
-            return 0;
+            m_averageColorsParamsList = new ArrayList<>();
+            for (int i = 0; i < x_rect_count; i++)
+            {
+                for (int j = 0; j < y_rect_count; j++)
+                {
+                    AverageColorsParams curElem = new AverageColorsParams();
+
+                    curElem.start_x = x_delta * i;
+                    curElem.start_y = y_delta * j;
+
+                    m_averageColorsParamsList.add(curElem);
+
+                    getAvarageColor(curFrameImage, curElem.cur, curElem.start_x, curElem.start_y);
+                }
+            }
+            return res;
         }
 
-        return _isDiffFrom(curFrameImage);
+        for (AverageColorsParams elem : m_averageColorsParamsList)
+        {
+            res = _isDiffFrom(curFrameImage, elem);
+            if (res == 1)
+            {
+                correctRectListFound = true;
+                m_averageColorsParamsCorrectRectList.add(elem);
+            }
+        }
+
+        if (correctRectListFound)
+            return 1;
+        else
+            return 0;
+    }
+
+    private int compareWithCurrentFrameImage(Bitmap curFrameImage)
+    {
+        int res = 1;
+
+        for (AverageColorsParams curRect : m_averageColorsParamsCorrectRectList)
+        {
+            res = res * _isDiffFrom(curFrameImage, curRect);
+        }
+
+        return res;
     }
 
     //count average for new current
-    private void getAvarageColor(Bitmap image, AverageColorParam col_params) {
+    private void getAvarageColor(Bitmap image, AverageColorParam col_params, int start_x, int start_y) {
         RGB col = col_params.color;
 
         col.setZeroColor();
         col_params.intensity = 0;
 
-        int height = image.getHeight();
-        int width = image.getWidth();
-
         int pixels_count = 0;
-        for (int y = height / 4 ; y < height - height / 4; y += 3) {
-            for (int x = width / 4; x < width - width / 4; x += 3) {
+        for (int y = start_y ; y < start_y + y_delta; y += 3) {
+            for (int x = start_x; x < start_x + x_delta; x += 3) {
                 pixels_count++;
                 try {
                     int pixel = image.getPixel(x,y);
@@ -174,24 +223,23 @@ public class ImageProcessing implements Runnable {
 
     private boolean isDifferentColors(AverageColorParam param1, AverageColorParam param2)
     {
-        int epsilonR = 60;
-        int epsilonG = 60;
-        int epsilonB = 60;
         int epsilonIntensity = 50;
 
-        Log.d(ActivityMain.APP_NAME, "PrevColor(" + param1.color.r + "," + param1.color.g + "," + param1.color.b + ")");
-        Log.d(ActivityMain.APP_NAME, "CurColor(" + param2.color.r + "," + param2.color.g + "," + param2.color.b + ")");
+        Log.d(ActivityMain.APP_NAME, "PrevColor(" + param1.color.r + "," + param1.color.g + "," + param1.color.b + "), " +
+                "PrevIntensity = " + param1.intensity);
+        Log.d(ActivityMain.APP_NAME, "CurColor(" + param2.color.r + "," + param2.color.g + "," + param2.color.b + "), " +
+                "CurIntensity = " + param2.intensity);
 
         return Math.abs(param1.intensity - param2.intensity) > epsilonIntensity;
     }
 
-    private int _isDiffFrom(Bitmap curFrameImage)
+    private int _isDiffFrom(Bitmap curFrameImage, AverageColorsParams averageParams)
     {
         //prev = last current
-        m_averageColorsParams.prev = (ColorsSupp.AverageColorParam) m_averageColorsParams.prev.clone();
+        averageParams.prev = (ColorsSupp.AverageColorParam) averageParams.cur.clone();
 
-        getAvarageColor(curFrameImage, m_averageColorsParams.cur);
+        getAvarageColor(curFrameImage, averageParams.cur, averageParams.start_x, averageParams.start_y);
 
-        return isDifferentColors(m_averageColorsParams.prev, m_averageColorsParams.cur) ? 1 : 0;
+        return isDifferentColors(averageParams.prev, averageParams.cur) ? 1 : 0;
     }
 }

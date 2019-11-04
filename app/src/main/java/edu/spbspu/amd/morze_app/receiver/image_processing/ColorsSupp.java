@@ -1,6 +1,7 @@
 package edu.spbspu.amd.morze_app.receiver.image_processing;
 
 public class ColorsSupp {
+
     public static class RGB implements Cloneable
     {
         public Object clone()
@@ -104,6 +105,8 @@ public class ColorsSupp {
 
         public AverageColorParam prev;
         public AverageColorParam cur;
+        public int start_x = 0;
+        public int start_y = 0;
     }
 
 
