@@ -76,41 +76,30 @@ public class ImageProcessing implements Runnable {
 
                     if (curDurationInFrames <= dotDurationInFrames + 2 &&
                             curDurationInFrames >= dotDurationInFrames - 2 &&
-                        diffAmount % 2 == 0) {
-                        try {
-                            morzeСoder.appendSym('.');
-                            Log.d(ActivityMain.APP_NAME, "send . to decoder");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
+                        diffAmount % 2 == 0)
+                    {
+                        morzeСoder.appendSym('.');
+                        Log.d(ActivityMain.APP_NAME, "send . to decoder");
+
+                    }
+                    else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
+                            curDurationInFrames >= 3 * dotDurationInFrames - 6 && diffAmount % 2 == 0)
+                    {
+                        morzeСoder.appendSym('-');
+                        Log.d(ActivityMain.APP_NAME, "send - to decoder");
+                    }
+                    else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
                             curDurationInFrames >= 3 * dotDurationInFrames - 6 &&
-                            diffAmount % 2 == 0) {
-                        try {
-                            morzeСoder.appendSym('-');
-                            Log.d(ActivityMain.APP_NAME, "send - to decoder");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
-                            curDurationInFrames >= 3 * dotDurationInFrames - 6 &&
-                            diffAmount % 2 == 1) {
-                        try {
-                            morzeСoder.appendSym('&');
-                            Log.d(ActivityMain.APP_NAME, "send & to decoder");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                            diffAmount % 2 == 1)
+                    {
+                        morzeСoder.appendSym('&');
+                        Log.d(ActivityMain.APP_NAME, "send & to decoder");
                     }
 
                     if ((morzeСoder.canDecode())) {
                         char curSym = '#';
-                        try {
-                            curSym = morzeСoder.getDecodedSym();
-                            Log.d(ActivityMain.APP_NAME, "new symbol is " + curSym);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        curSym = morzeСoder.getDecodedSym();
+                        Log.d(ActivityMain.APP_NAME, "new symbol is " + curSym);
                         outputText.setText(outputText.getText().toString() + curSym);
                     }
 
@@ -240,6 +229,7 @@ public class ImageProcessing implements Runnable {
 
         getAvarageColor(curFrameImage, averageParams.cur, averageParams.start_x, averageParams.start_y);
 
+        Log.d(ActivityMain.APP_NAME, "Get diff for (" + averageParams.start_x + ", " + averageParams.start_y + ")");
         return isDifferentColors(averageParams.prev, averageParams.cur) ? 1 : 0;
     }
 }
