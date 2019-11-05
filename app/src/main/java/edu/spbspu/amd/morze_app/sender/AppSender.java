@@ -26,13 +26,7 @@ public class AppSender {
     {
         //rerash colors
         colors = new ArrayList<>();
-        //add 10 black point for waiting receiver ready
-        /*for (int i = 0; i < 2; i++)
-        {
-            colors.add(Color.BLACK);
-        }*/
 
-        //add first white point
         colors.add(Color.WHITE);
         colors.add(Color.BLACK);
 
@@ -79,9 +73,13 @@ public class AppSender {
                     m_cur_color_idx = -2;
                     cancel();
                 }
-                else
-                    m_cur_color_idx = (m_cur_color_idx + 1) % colors.size();
-                Log.d(ActivityMain.APP_NAME, "change color:" + m_cur_color_idx);
+                else {
+                    if (m_cur_color_idx == colors.size() - 1)
+                        m_cur_color_idx = 2;
+                    else
+                        m_cur_color_idx++;
+                }
+                //Log.d(ActivityMain.APP_NAME, "change color:" + m_cur_color_idx);
             }
         };
         m_timer.scheduleAtFixedRate(m_task, delay, m_point_time);
@@ -89,6 +87,8 @@ public class AppSender {
 
     public void refreshSender(long point_time, boolean need_to_repeat, char[] text)
     {
+        Log.d(ActivityMain.APP_NAME, "refresh sender");
+        m_timer = new Timer("Timer");
         setNeedRepeat(need_to_repeat);
         setPointTime(point_time);
         setText(text);
@@ -99,7 +99,6 @@ public class AppSender {
     public AppSender(ActivityMain ctx)
     {
         m_ctx = ctx;
-        m_timer = new Timer("Timer");
     }
 
     public boolean	onTouch(int x, int y, int touchType)

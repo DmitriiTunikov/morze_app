@@ -3,7 +3,6 @@ package edu.spbspu.amd.morze_app.receiver.image_processing;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -39,21 +38,21 @@ public class ImageProcessing implements Runnable {
                 else
                     continue;
 
-                Log.d(ActivityMain.APP_NAME, "pop from queue");
+                //Log.d(ActivityMain.APP_NAME, "pop from queue");
 
                 int compareRes = 0;
                 if (!correctRectListFound)
                 {
-                    Log.d(ActivityMain.APP_NAME, "Comparing before rectFound started.");
+                    //Log.d(ActivityMain.APP_NAME, "Comparing before rectFound started.");
                     compareRes = compareWithCurrentFrameImageBeforeReadyRects(curImage);
                 }
                 else
                 {
-                    Log.d(ActivityMain.APP_NAME, "Comparing into correct Rectangles started.");
+                    //Log.d(ActivityMain.APP_NAME, "Comparing into correct Rectangles started.");
                     compareRes = compareWithCurrentFrameImage(curImage);
                 }
 
-                Log.d(ActivityMain.APP_NAME, "Comparing finished.");
+                //Log.d(ActivityMain.APP_NAME, "Comparing finished.");
 
                 if (dotDurationCounting && diffAmount > 0) {
                     dotDurationInFrames++;
@@ -105,7 +104,7 @@ public class ImageProcessing implements Runnable {
 
                     curDurationInFrames = 0;
                 } else {
-                    Log.d(ActivityMain.APP_NAME, "Identical images.");
+                    //Log.d(ActivityMain.APP_NAME, "Identical images.");
                 }
             }
         }
@@ -139,6 +138,8 @@ public class ImageProcessing implements Runnable {
             x_delta = curFrameImage.getWidth() / x_rect_count;
             y_delta = curFrameImage.getWidth() / y_rect_count;
 
+            Log.d(ActivityMain.APP_NAME, "x_delta and y_delta :" + x_delta + ", " + y_delta);
+
             m_averageColorsParamsList = new ArrayList<>();
             for (int i = 0; i < x_rect_count; i++)
             {
@@ -149,6 +150,7 @@ public class ImageProcessing implements Runnable {
                     curElem.start_x = x_delta * i;
                     curElem.start_y = y_delta * j;
 
+                    Log.d(ActivityMain.APP_NAME, "newRect coords: (" + curElem.start_x + ", " + curElem.start_y + ")");
                     m_averageColorsParamsList.add(curElem);
 
                     getAvarageColor(curFrameImage, curElem.cur, curElem.start_x, curElem.start_y);
@@ -167,22 +169,27 @@ public class ImageProcessing implements Runnable {
             }
         }
 
-        if (correctRectListFound)
+        if (correctRectListFound) {
+            Log.d(ActivityMain.APP_NAME, "correct rects were FOUND");
             return 1;
+        }
         else
             return 0;
     }
 
     private int compareWithCurrentFrameImage(Bitmap curFrameImage)
     {
-        int res = 1;
+        int res = 0;
 
         for (AverageColorsParams curRect : m_averageColorsParamsCorrectRectList)
         {
-            res = res * _isDiffFrom(curFrameImage, curRect);
+            res = res + _isDiffFrom(curFrameImage, curRect);
         }
 
-        return res;
+        if (res > 0)
+            return 1;
+        else
+            return 0;
     }
 
     //count average for new current
@@ -212,12 +219,13 @@ public class ImageProcessing implements Runnable {
 
     private boolean isDifferentColors(AverageColorParam param1, AverageColorParam param2)
     {
-        int epsilonIntensity = 50;
+        int epsilonIntensity = 80;
 
+        /*
         Log.d(ActivityMain.APP_NAME, "PrevColor(" + param1.color.r + "," + param1.color.g + "," + param1.color.b + "), " +
                 "PrevIntensity = " + param1.intensity);
         Log.d(ActivityMain.APP_NAME, "CurColor(" + param2.color.r + "," + param2.color.g + "," + param2.color.b + "), " +
-                "CurIntensity = " + param2.intensity);
+                "CurIntensity = " + param2.intensity);*/
 
         return Math.abs(param1.intensity - param2.intensity) > epsilonIntensity;
     }
@@ -229,7 +237,7 @@ public class ImageProcessing implements Runnable {
 
         getAvarageColor(curFrameImage, averageParams.cur, averageParams.start_x, averageParams.start_y);
 
-        Log.d(ActivityMain.APP_NAME, "Get diff for (" + averageParams.start_x + ", " + averageParams.start_y + ")");
+        //Log.d(ActivityMain.APP_NAME, "Get diff for (" + averageParams.start_x + ", " + averageParams.start_y + ")");
         return isDifferentColors(averageParams.prev, averageParams.cur) ? 1 : 0;
     }
 }
