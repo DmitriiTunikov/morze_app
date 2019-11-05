@@ -96,7 +96,7 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
                 curCameraImage = textureView.getBitmap();
                 if (curCameraImage != null) {
                     m_queue.addLast(curCameraImage);
-                    Log.d(ActivityMain.APP_NAME, "add to queue");
+                    //Log.d(ActivityMain.APP_NAME, "add to queue");
                 }
             }
         };
