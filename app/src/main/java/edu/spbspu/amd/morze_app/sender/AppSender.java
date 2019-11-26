@@ -15,9 +15,10 @@ public class AppSender {
     private ActivityMain m_ctx;
     private Timer m_timer;
     public static final long delay = 5000L;
+    private static int timer_i = 0;
 
     // rect
-    public static long m_point_time = 1000L;
+    public static long m_point_time = 3000L;
     private ArrayList<Integer> colors;
     private int m_cur_color_idx;
     private boolean m_need_repeat;
@@ -88,7 +89,7 @@ public class AppSender {
     public void refreshSender(long point_time, boolean need_to_repeat, char[] text)
     {
         Log.d(ActivityMain.APP_NAME, "refresh sender");
-        m_timer = new Timer("Timer");
+        m_timer = new Timer("Timer" + (timer_i++));
         setNeedRepeat(need_to_repeat);
         setPointTime(point_time);
         setText(text);

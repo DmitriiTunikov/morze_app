@@ -23,6 +23,8 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jjoe64.graphview.GraphView;
+
 import java.util.Locale;
 
 import edu.spbspu.amd.morze_app.receiver.ViewReceiver;
@@ -122,23 +124,6 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     } else {
       setView(m_viewCur);
     }
-
-    /*
-    // HACK!!!!! -> testing ImageProcessing
-    BitmapFactory.Options options = new BitmapFactory.Options();
-    options.inScaled = false;
-
-    Bitmap image1 = BitmapFactory.decodeResource(getResources(), R.drawable.test_image_processing_1, options);
-    Bitmap image2 = BitmapFactory.decodeResource(getResources(), R.drawable.test_image_processing_2, options);
-
-    ImageProcessing ip = new ImageProcessing();
-    ip.compareWithCurrentFrameImage(image1);
-    int res = ip.compareWithCurrentFrameImage(image2);
-
-    if (res != 0) {
-      ImageProcessing.RGB newColor = ip.getNewAverageColor();
-      Log.d(ActivityMain.APP_NAME, "Success image processing test!");
-    }*/
   }
 
   private void CameraPermision()
@@ -200,12 +185,14 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       Log.d(ActivityMain.APP_NAME, "Switch to sender view");
       setContentView(m_viewSender);
       m_viewSender.start();
-    } else if (m_viewCur == VIEW_RECEIVER) {
+    } else if (m_viewCur == VIEW_RECEIVER)
+    {
       Log.d(ActivityMain.APP_NAME, "Switch to receiver's view");
       setContentView(R.layout.sample_view_camera);
       m_viewReceiver = new ViewReceiver(this, (TextureView) findViewById(R.id.textureView),
-              (TextView) findViewById(R.id.decodedTextView), Camera.open(0));
-    } else if (m_viewCur == VIEW_SENDER_PARAMS) {
+              (TextView) findViewById(R.id.decodedTextView), Camera.open(0), (GraphView) findViewById(R.id.graph));
+    } else if (m_viewCur == VIEW_SENDER_PARAMS)
+    {
       m_viewSenderParams = new ViewSenderParams(this);
       Log.d(ActivityMain.APP_NAME, "Switch to senderParams view");
       setContentView(R.layout.sample_view_sender_params);

@@ -1,10 +1,10 @@
 package edu.spbspu.amd.morze_app.receiver.image_processing;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Handler;
 import android.util.Log;
-import android.widget.TextView;
-
 import java.util.ArrayList;
 
 import edu.spbspu.amd.morze_app.ActivityMain;
@@ -20,8 +20,10 @@ public class ImageProcessing implements Runnable {
     private int     curDurationInFrames = 0;
     private boolean dotDurationCounting = true;
     private int diffAmount = 0;
-    private TextView outputText;
+    private Handler handler;
+    private Handler m_graph_h;
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void run() {
         try {
@@ -34,11 +36,14 @@ public class ImageProcessing implements Runnable {
 
                 Bitmap curImage;
                 if (ViewReceiver.m_queue.peek() != null)
+                {
+                    //Log.d(ActivityMain.APP_NAME, "queue size is: " + ViewReceiver.m_queue.size());
+                    ViewReceiver.m_sem.acquire();
                     curImage = ViewReceiver.m_queue.pop();
+                }
                 else
                     continue;
 
-                //Log.d(ActivityMain.APP_NAME, "pop from queue");
 
                 int compareRes = 0;
                 if (!correctRectListFound)
@@ -54,12 +59,13 @@ public class ImageProcessing implements Runnable {
 
                 //Log.d(ActivityMain.APP_NAME, "Comparing finished.");
 
-                if (dotDurationCounting && diffAmount > 0) {
+                if (dotDurationCounting && diffAmount > 0)
                     dotDurationInFrames++;
-                } else if (diffAmount >= 2){
+                else if (diffAmount >= 2)
                     curDurationInFrames++;
-                }
 
+
+                ViewReceiver.m_sem.release();
                 if (compareRes != 0) {
                     Log.d(ActivityMain.APP_NAME, "DIFF!!!!");
                     diffAmount++;
@@ -70,8 +76,9 @@ public class ImageProcessing implements Runnable {
                         continue;
                     }
 
-                    if (diffAmount < 2)
+                    if (diffAmount < 2) {
                         continue;
+                    }
 
                     if (curDurationInFrames <= dotDurationInFrames + 2 &&
                             curDurationInFrames >= dotDurationInFrames - 2 &&
@@ -99,12 +106,10 @@ public class ImageProcessing implements Runnable {
                         char curSym = '#';
                         curSym = morzeСoder.getDecodedSym();
                         Log.d(ActivityMain.APP_NAME, "new symbol is " + curSym);
-                        outputText.setText(outputText.getText().toString() + curSym);
+                        handler.sendMessage(handler.obtainMessage(0, curSym));
                     }
 
                     curDurationInFrames = 0;
-                } else {
-                    //Log.d(ActivityMain.APP_NAME, "Identical images.");
                 }
             }
         }
@@ -117,9 +122,10 @@ public class ImageProcessing implements Runnable {
     private ArrayList<AverageColorsParams> m_averageColorsParamsCorrectRectList;
     private boolean correctRectListFound;
     private ArrayList<AverageColorsParams> m_averageColorsParamsList;
-    public ImageProcessing(TextView outputText_)
+    public ImageProcessing(Handler h, Handler graph_h)
     {
-        outputText = outputText_;
+        handler = h;
+        m_graph_h = graph_h;
         correctRectListFound = false;
         m_averageColorsParamsCorrectRectList = new ArrayList<>();
         m_averageColorsParamsList = null;
@@ -169,7 +175,8 @@ public class ImageProcessing implements Runnable {
             }
         }
 
-        if (correctRectListFound) {
+        if (correctRectListFound)
+        {
             Log.d(ActivityMain.APP_NAME, "correct rects were FOUND");
             return 1;
         }
@@ -179,17 +186,20 @@ public class ImageProcessing implements Runnable {
 
     private int compareWithCurrentFrameImage(Bitmap curFrameImage)
     {
-        int res = 0;
-
-        for (AverageColorsParams curRect : m_averageColorsParamsCorrectRectList)
-        {
-            res = res + _isDiffFrom(curFrameImage, curRect);
+        int diff_count = 0;
+        int aver_intensity = 0;
+        for (AverageColorsParams curRect : m_averageColorsParamsCorrectRectList) {
+            diff_count = diff_count + _isDiffFrom(curFrameImage, curRect);
+            aver_intensity += curRect.cur.intensity;
         }
 
-        if (res > 0)
+        aver_intensity /= m_averageColorsParamsCorrectRectList.size();
+
+        m_graph_h.sendEmptyMessage(aver_intensity);
+        if (diff_count >= m_averageColorsParamsCorrectRectList.size() / 2)
             return 1;
-        else
-            return 0;
+
+        return 0;
     }
 
     //count average for new current
@@ -200,12 +210,12 @@ public class ImageProcessing implements Runnable {
         col_params.intensity = 0;
 
         int pixels_count = 0;
-        for (int y = start_y ; y < start_y + y_delta; y += 3) {
-            for (int x = start_x; x < start_x + x_delta; x += 3) {
-                pixels_count++;
+        for (int y = start_y ; y < start_y + y_delta; y += 6) {
+            for (int x = start_x; x < start_x + x_delta; x += 6) {
                 try {
                     int pixel = image.getPixel(x,y);
                     col.incrementColor(Color.red(pixel), Color.green(pixel), Color.blue(pixel));
+                    pixels_count++;
                 }
                 catch (Exception ignored)
                 {

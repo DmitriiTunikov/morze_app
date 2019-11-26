@@ -6,15 +6,26 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.TextView;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.GridLabelRenderer;
+import com.jjoe64.graphview.Viewport;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.Series;
+
 import java.util.ArrayDeque;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
+
 import edu.spbspu.amd.morze_app.ActivityMain;
 import edu.spbspu.amd.morze_app.receiver.image_processing.ImageProcessing;
 import edu.spbspu.amd.morze_app.sender.AppSender;
@@ -22,15 +33,20 @@ import edu.spbspu.amd.morze_app.sender.AppSender;
 
 public class ViewReceiver extends View implements TextureView.SurfaceTextureListener {
     private TextureView textureView;
+    private static int timer_i = 0;
     private Camera      camera;
     static public ArrayDeque<Bitmap> m_queue;
     private Thread m_image_proc;
     private TimerTask m_taskSaveImage;
     private static long m_save_image_interval = AppSender.m_point_time;
+    static public final Semaphore m_sem = new Semaphore(1, true);
+    private long start_time;
+
 
     private ImageProcessing ip;
     private Bitmap          curCameraImage = null;
     private TextView        outputText;
+    private GraphView m_graphView;
 
     private Timer   timer;
     private ActivityMain  m_ctx;
@@ -77,8 +93,9 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
     }
 
     public ViewReceiver(ActivityMain context, TextureView textureSurfaceView,
-                        TextView outputTextView, Camera cam) {
+                        TextView outputTextView, Camera cam, final GraphView graphView) {
         super(context);
+        m_graphView = graphView;
         m_ctx = context;
         camera = cam;
 
@@ -86,35 +103,69 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
         textureView.setSurfaceTextureListener(this);
 
         outputText = outputTextView;
+        outputText.setText("");
         outputText.setTextColor(Color.WHITE);
 
-        timer = new Timer("Receiver Timer");
+        timer = new Timer("Receiver Timer" + (timer_i++));
+
 
         m_taskSaveImage = new TimerTask() {
             @Override
             public void run() {
-                curCameraImage = textureView.getBitmap();
-                if (curCameraImage != null) {
-                    m_queue.addLast(curCameraImage);
-                    //Log.d(ActivityMain.APP_NAME, "add to queue");
+                Log.d(ActivityMain.APP_NAME, "kek i am here");
+                try {
+                    curCameraImage = textureView.getBitmap();
+                    if (curCameraImage != null) {
+                        m_sem.acquire();
+                        m_queue.addLast(curCameraImage);
+                        m_sem.release();
+                        //Log.d(ActivityMain.APP_NAME, "add to queue");
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
                 }
             }
         };
+
+        start_time = System.currentTimeMillis();
 
         //start save image thread
         m_queue = new ArrayDeque<>();
 
         timer.scheduleAtFixedRate(m_taskSaveImage, AppSender.delay / 2, m_save_image_interval / 5);
 
+        GridLabelRenderer gridLabel = graphView.getGridLabelRenderer();
+        gridLabel.setHorizontalAxisTitle("T(sec)");
+        gridLabel.setVerticalAxisTitle("Intensity");
+
+        Viewport vp = graphView.getViewport();
+        vp.setXAxisBoundsManual(true);
+        vp.setYAxisBoundsManual(true);
+        vp.setMinX(0);
+        vp.setMaxX(60);
+        vp.setMinY(0);
+        vp.setMaxY(255);
+        graphView.addSeries(new LineGraphSeries<DataPoint>(new DataPoint[]{new DataPoint(0, 0)}));
+
         //start processing thread
-        m_image_proc = new Thread(new ImageProcessing(outputTextView));
+        Handler h = new Handler() {
+            public void handleMessage(android.os.Message msg) {
+                outputText.setText(outputText.getText().toString() + msg.obj.toString());
+            }
+        };
+        Handler graph_handler = new Handler() {
+            public void handleMessage(android.os.Message msg) {
+                List<Series> l = graphView.getSeries();
+                LineGraphSeries<DataPoint> curS = (LineGraphSeries<DataPoint>)l.get(0);
+                Log.d(ActivityMain.APP_NAME, "append data point: " + (System.currentTimeMillis() - start_time) / 1000.0 + ", " + msg.what);
+                curS.appendData(new DataPoint((System.currentTimeMillis() - start_time) / 1000.0, msg.what), true, 120);
+            }
+        };
+
+        m_image_proc = new Thread(new ImageProcessing(h, graph_handler));
         m_image_proc.start();
-        /*try{
-            m_image_proc.join();
-        }
-        catch(InterruptedException e){
-            System.out.printf("%s has been interrupted", m_image_proc.getName());
-        }*/
     }
 
     public void interrupt()
