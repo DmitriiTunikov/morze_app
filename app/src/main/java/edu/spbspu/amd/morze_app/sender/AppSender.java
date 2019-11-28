@@ -13,7 +13,7 @@ import edu.spbspu.amd.morze_app.AppIntro;
 
 public class AppSender {
     private ActivityMain m_ctx;
-    private Timer m_timer;
+    private Timer m_timer = null;
     public static final long delay = 5000L;
     private static int timer_i = 0;
 
@@ -89,7 +89,11 @@ public class AppSender {
     public void refreshSender(long point_time, boolean need_to_repeat, char[] text)
     {
         Log.d(ActivityMain.APP_NAME, "refresh sender");
+        if (m_timer != null) {
+            m_timer.cancel();
+        }
         m_timer = new Timer("Timer" + (timer_i++));
+        Log.d(ActivityMain.APP_NAME, "Timer " + timer_i);
         setNeedRepeat(need_to_repeat);
         setPointTime(point_time);
         setText(text);

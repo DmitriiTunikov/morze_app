@@ -1,56 +1,96 @@
 package edu.spbspu.amd.morze_app.morzeCoder;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 public class MorzeСoder {
     private StringBuffer cur_buf;
     private char res_char;
     private boolean can_decode;
 
-    private static final HashMap<String, Character> morze_map;
+    private static final HashMap<String, Character> morze_decoding_map;
+    private static final HashMap<Character, String> morze_encoding_map;
     static {
-        morze_map = new HashMap<>();
-        morze_map.put(".-", 'a');
-        morze_map.put("-...", 'b');
-        morze_map.put("-.-", 'c');
-        morze_map.put("-..", 'd');
-        morze_map.put(".", 'e');
-        morze_map.put("..-.", 'f');
-        morze_map.put("--.", 'g');
-        morze_map.put("....", 'h');
-        morze_map.put("..", 'i');
-        morze_map.put(".---", 'j');
-        morze_map.put("-.", 'k');
-        morze_map.put(".-..", 'l');
-        morze_map.put("--", 'm');
-        morze_map.put("-.-.", 'n');
-        morze_map.put("---", 'o');
-        morze_map.put(".--.", 'p');
-        morze_map.put("--.-", 'q');
-        morze_map.put(".-.", 'r');
-        morze_map.put("...", 's');
-        morze_map.put("-", 't');
-        morze_map.put("..-", 'u');
-        morze_map.put("...-", 'v');
-        morze_map.put(".--", 'w');
-        morze_map.put("-..-", 'x');
-        morze_map.put("-.--", 'y');
-        morze_map.put("--..", 'z');
-        morze_map.put(".----", '1');
-        morze_map.put("..---", '2');
-        morze_map.put("...--", '3');
-        morze_map.put("....-", '4');
-        morze_map.put(".....", '5');
-        morze_map.put("-....", '6');
-        morze_map.put("--...", '7');
-        morze_map.put("---..", '8');
-        morze_map.put("----.", '9');
-        morze_map.put("-----", '0');
+        morze_decoding_map = new HashMap<>();
+        morze_decoding_map.put(".-", 'a');
+        morze_decoding_map.put("-...", 'b');
+        morze_decoding_map.put("-.-", 'c');
+        morze_decoding_map.put("-..", 'd');
+        morze_decoding_map.put(".", 'e');
+        morze_decoding_map.put("..-.", 'f');
+        morze_decoding_map.put("--.", 'g');
+        morze_decoding_map.put("....", 'h');
+        morze_decoding_map.put("..", 'i');
+        morze_decoding_map.put(".---", 'j');
+        morze_decoding_map.put("-.", 'k');
+        morze_decoding_map.put(".-..", 'l');
+        morze_decoding_map.put("--", 'm');
+        morze_decoding_map.put("-.-.", 'n');
+        morze_decoding_map.put("---", 'o');
+        morze_decoding_map.put(".--.", 'p');
+        morze_decoding_map.put("--.-", 'q');
+        morze_decoding_map.put(".-.", 'r');
+        morze_decoding_map.put("...", 's');
+        morze_decoding_map.put("-", 't');
+        morze_decoding_map.put("..-", 'u');
+        morze_decoding_map.put("...-", 'v');
+        morze_decoding_map.put(".--", 'w');
+        morze_decoding_map.put("-..-", 'x');
+        morze_decoding_map.put("-.--", 'y');
+        morze_decoding_map.put("--..", 'z');
+        morze_decoding_map.put(".----", '1');
+        morze_decoding_map.put("..---", '2');
+        morze_decoding_map.put("...--", '3');
+        morze_decoding_map.put("....-", '4');
+        morze_decoding_map.put(".....", '5');
+        morze_decoding_map.put("-....", '6');
+        morze_decoding_map.put("--...", '7');
+        morze_decoding_map.put("---..", '8');
+        morze_decoding_map.put("----.", '9');
+        morze_decoding_map.put("-----", '0');
 
         //between words
-        morze_map.put("-.-..", ' ');
+        morze_decoding_map.put("-.-..", ' ');
+
+        morze_encoding_map = new HashMap<>();
+        morze_encoding_map.put('a',".-");
+        morze_encoding_map.put('b',"-...");
+        morze_encoding_map.put('c',"-.-");
+        morze_encoding_map.put('d',"-..");
+        morze_encoding_map.put('e',".");
+        morze_encoding_map.put('f',"..-.");
+        morze_encoding_map.put('g',"--.");
+        morze_encoding_map.put('h',"....");
+        morze_encoding_map.put('i',"..");
+        morze_encoding_map.put('j',".---");
+        morze_encoding_map.put('k',"-.");
+        morze_encoding_map.put('l',".-..");
+        morze_encoding_map.put('m',"--");
+        morze_encoding_map.put('n',"-.-.");
+        morze_encoding_map.put('o',"---");
+        morze_encoding_map.put('p',".--.");
+        morze_encoding_map.put('q',"--.-");
+        morze_encoding_map.put('r',".-.");
+        morze_encoding_map.put('s',"...");
+        morze_encoding_map.put('t',"-");
+        morze_encoding_map.put('u',"..-");
+        morze_encoding_map.put('v',"...-");
+        morze_encoding_map.put('w',".--");
+        morze_encoding_map.put('x',"-..-");
+        morze_encoding_map.put('y',"-.--");
+        morze_encoding_map.put('z',"--..");
+        morze_encoding_map.put('1',".----");
+        morze_encoding_map.put('2',"..---");
+        morze_encoding_map.put('3',"...--");
+        morze_encoding_map.put('4',"....-");
+        morze_encoding_map.put('5',".....");
+        morze_encoding_map.put('6',"-....");
+        morze_encoding_map.put('7',"--...");
+        morze_encoding_map.put('8',"---..");
+        morze_encoding_map.put('9',"----.");
+        morze_encoding_map.put('0',"-----");
+
+        //between words
+        morze_encoding_map.put(' ',"-.-..");
     }
 
     public MorzeСoder()
@@ -61,8 +101,8 @@ public class MorzeСoder {
 
     private Character findElemByBuffer()
     {
-        if (morze_map.containsKey(cur_buf.toString())) {
-            return morze_map.get(cur_buf.toString());
+        if (morze_decoding_map.containsKey(cur_buf.toString())) {
+            return morze_decoding_map.get(cur_buf.toString());
         }
 
         return '#';
@@ -111,7 +151,7 @@ public class MorzeСoder {
         StringBuilder res = new StringBuilder();
 
         for (char elem : str.toCharArray()) {
-            res.append(morze_map.get(elem));
+            res.append(morze_encoding_map.get(elem));
 
             //between chars
             res.append("&");
