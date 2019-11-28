@@ -7,17 +7,7 @@
     <string name="str_university2">университет Петра Великого</string>
     <string name="str_toweb">На сайт</string>
     <string name="str_start">Старт</string>
-    <string name="str_show">Показать</string>
-    <string name="str_pack">Рюкзак</string>
-    <string name="str_completed">выполнено</string>
-    <string name="str_press_to_start">Нажмите экран для упаковки</string>
-    <string name="str_shape_percent">Заполняемость формы</string>
-    <string name="str_rect_percent">Заполняемость прям-к</string>
-    <string name="str_num_objects">Число форм</string>
-    <string name="str_touch_change_shape">Нажмите экран чтобы показать другую форму</string>
-
-    <string name="str_num_shapes">Число форм</string>
-    <string name="str_desired_number">Желаемое число</string>
-
-
+    <string name="str_send">Отослать</string>
+    <string name="str_receive">Принять</string>
+    <string name="str_repeat">Повторять</string>
 </resources>

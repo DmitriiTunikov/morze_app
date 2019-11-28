@@ -9,48 +9,48 @@ public class MorzeСoder {
     private char res_char;
     private boolean can_decode;
 
-    private static final HashMap<Character, String> morze_map;
+    private static final HashMap<String, Character> morze_map;
     static {
-        morze_map = new HashMap<Character, String>();
-        morze_map.put('a',".-");
-        morze_map.put('b',"-...");
-        morze_map.put('c',"-.-");
-        morze_map.put('d',"-..");
-        morze_map.put('e',".");
-        morze_map.put('f',"..-.");
-        morze_map.put('g',"--.");
-        morze_map.put('h',"....");
-        morze_map.put('i',"..");
-        morze_map.put('j',".---");
-        morze_map.put('k',"-.");
-        morze_map.put('l',".-..");
-        morze_map.put('m',"--");
-        morze_map.put('n',"-.");
-        morze_map.put('o',"---");
-        morze_map.put('p',".--.");
-        morze_map.put('q',"--.-");
-        morze_map.put('r',".-.");
-        morze_map.put('s',"...");
-        morze_map.put('t',"-");
-        morze_map.put('u',"..-");
-        morze_map.put('v',"...-");
-        morze_map.put('w',".--");
-        morze_map.put('x',"-..-");
-        morze_map.put('y',"-.--");
-        morze_map.put('z',"--..");
-        morze_map.put('1',".----");
-        morze_map.put('2',"..---");
-        morze_map.put('3',"...--");
-        morze_map.put('4',"....-");
-        morze_map.put('5',".....");
-        morze_map.put('6',"-....");
-        morze_map.put('7',"--...");
-        morze_map.put('8',"---..");
-        morze_map.put('9',"----.");
-        morze_map.put('0',"-----");
+        morze_map = new HashMap<>();
+        morze_map.put(".-", 'a');
+        morze_map.put("-...", 'b');
+        morze_map.put("-.-", 'c');
+        morze_map.put("-..", 'd');
+        morze_map.put(".", 'e');
+        morze_map.put("..-.", 'f');
+        morze_map.put("--.", 'g');
+        morze_map.put("....", 'h');
+        morze_map.put("..", 'i');
+        morze_map.put(".---", 'j');
+        morze_map.put("-.", 'k');
+        morze_map.put(".-..", 'l');
+        morze_map.put("--", 'm');
+        morze_map.put("-.-.", 'n');
+        morze_map.put("---", 'o');
+        morze_map.put(".--.", 'p');
+        morze_map.put("--.-", 'q');
+        morze_map.put(".-.", 'r');
+        morze_map.put("...", 's');
+        morze_map.put("-", 't');
+        morze_map.put("..-", 'u');
+        morze_map.put("...-", 'v');
+        morze_map.put(".--", 'w');
+        morze_map.put("-..-", 'x');
+        morze_map.put("-.--", 'y');
+        morze_map.put("--..", 'z');
+        morze_map.put(".----", '1');
+        morze_map.put("..---", '2');
+        morze_map.put("...--", '3');
+        morze_map.put("....-", '4');
+        morze_map.put(".....", '5');
+        morze_map.put("-....", '6');
+        morze_map.put("--...", '7');
+        morze_map.put("---..", '8');
+        morze_map.put("----.", '9');
+        morze_map.put("-----", '0');
 
         //between words
-        morze_map.put(' ',"-.-.");
+        morze_map.put("-.-..", ' ');
     }
 
     public MorzeСoder()
@@ -61,12 +61,10 @@ public class MorzeСoder {
 
     private Character findElemByBuffer()
     {
-        Iterator it = morze_map.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            if (pair.getValue().equals(cur_buf.toString()))
-                return (Character) pair.getKey();
+        if (morze_map.containsKey(cur_buf.toString())) {
+            return morze_map.get(cur_buf.toString());
         }
+
         return '#';
     }
 

@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 
 import edu.spbspu.amd.morze_app.ActivityMain;
@@ -35,24 +37,20 @@ public class ImageProcessing implements Runnable {
                 }
 
                 Bitmap curImage;
-                if (ViewReceiver.m_queue.peek() != null)
-                {
+                if (ViewReceiver.m_queue.peek() != null) {
                     //Log.d(ActivityMain.APP_NAME, "queue size is: " + ViewReceiver.m_queue.size());
                     ViewReceiver.m_sem.acquire();
                     curImage = ViewReceiver.m_queue.pop();
-                }
-                else
+                } else {
                     continue;
+                }
 
 
                 int compareRes = 0;
-                if (!correctRectListFound)
-                {
+                if (!correctRectListFound) {
                     //Log.d(ActivityMain.APP_NAME, "Comparing before rectFound started.");
                     compareRes = compareWithCurrentFrameImageBeforeReadyRects(curImage);
-                }
-                else
-                {
+                } else {
                     //Log.d(ActivityMain.APP_NAME, "Comparing into correct Rectangles started.");
                     compareRes = compareWithCurrentFrameImage(curImage);
                 }
@@ -82,22 +80,19 @@ public class ImageProcessing implements Runnable {
 
                     if (curDurationInFrames <= dotDurationInFrames + 2 &&
                             curDurationInFrames >= dotDurationInFrames - 2 &&
-                        diffAmount % 2 == 0)
-                    {
+                        diffAmount % 2 == 0) {
                         morzeСoder.appendSym('.');
                         Log.d(ActivityMain.APP_NAME, "send . to decoder");
 
                     }
                     else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
-                            curDurationInFrames >= 3 * dotDurationInFrames - 6 && diffAmount % 2 == 0)
-                    {
+                            curDurationInFrames >= 3 * dotDurationInFrames - 6 && diffAmount % 2 == 0) {
                         morzeСoder.appendSym('-');
                         Log.d(ActivityMain.APP_NAME, "send - to decoder");
                     }
                     else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
                             curDurationInFrames >= 3 * dotDurationInFrames - 6 &&
-                            diffAmount % 2 == 1)
-                    {
+                            diffAmount % 2 == 1) {
                         morzeСoder.appendSym('&');
                         Log.d(ActivityMain.APP_NAME, "send & to decoder");
                     }
@@ -112,9 +107,7 @@ public class ImageProcessing implements Runnable {
                     curDurationInFrames = 0;
                 }
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -139,18 +132,15 @@ public class ImageProcessing implements Runnable {
     private int compareWithCurrentFrameImageBeforeReadyRects(Bitmap curFrameImage)
     {
         int res = 0;
-        if (m_averageColorsParamsList == null)
-        {
+        if (m_averageColorsParamsList == null) {
             x_delta = curFrameImage.getWidth() / x_rect_count;
             y_delta = curFrameImage.getWidth() / y_rect_count;
 
             Log.d(ActivityMain.APP_NAME, "x_delta and y_delta :" + x_delta + ", " + y_delta);
 
             m_averageColorsParamsList = new ArrayList<>();
-            for (int i = 0; i < x_rect_count; i++)
-            {
-                for (int j = 0; j < y_rect_count; j++)
-                {
+            for (int i = 0; i < x_rect_count; i++) {
+                for (int j = 0; j < y_rect_count; j++) {
                     AverageColorsParams curElem = new AverageColorsParams();
 
                     curElem.start_x = x_delta * i;
@@ -165,23 +155,20 @@ public class ImageProcessing implements Runnable {
             return res;
         }
 
-        for (AverageColorsParams elem : m_averageColorsParamsList)
-        {
+        for (AverageColorsParams elem : m_averageColorsParamsList) {
             res = _isDiffFrom(curFrameImage, elem);
-            if (res == 1)
-            {
+            if (res == 1) {
                 correctRectListFound = true;
                 m_averageColorsParamsCorrectRectList.add(elem);
             }
         }
 
-        if (correctRectListFound)
-        {
+        if (correctRectListFound) {
             Log.d(ActivityMain.APP_NAME, "correct rects were FOUND");
             return 1;
-        }
-        else
+        } else {
             return 0;
+        }
     }
 
     private int compareWithCurrentFrameImage(Bitmap curFrameImage)
@@ -196,8 +183,9 @@ public class ImageProcessing implements Runnable {
         aver_intensity /= m_averageColorsParamsCorrectRectList.size();
 
         m_graph_h.sendEmptyMessage(aver_intensity);
-        if (diff_count >= m_averageColorsParamsCorrectRectList.size() / 2)
+        if (diff_count >= m_averageColorsParamsCorrectRectList.size() / 2) {
             return 1;
+        }
 
         return 0;
     }
@@ -216,9 +204,7 @@ public class ImageProcessing implements Runnable {
                     int pixel = image.getPixel(x,y);
                     col.incrementColor(Color.red(pixel), Color.green(pixel), Color.blue(pixel));
                     pixels_count++;
-                }
-                catch (Exception ignored)
-                {
+                } catch (Exception ignored) {
                 }
             }
         }

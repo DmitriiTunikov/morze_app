@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -162,9 +163,6 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
     return m_appSender;
   }
 
-  public int getScreenWidth() { return m_screenW; }
-  public int getScreenHeight() { return m_screenH; }
-
   public void setView(int viewID) {
     if (m_viewCur == viewID) {
       Log.d(ActivityMain.APP_NAME, "setView: already set");
@@ -196,8 +194,18 @@ public class ActivityMain extends Activity implements View.OnTouchListener, OnCo
       m_viewSenderParams = new ViewSenderParams(this);
       Log.d(ActivityMain.APP_NAME, "Switch to senderParams view");
       setContentView(R.layout.sample_view_sender_params);
-      m_viewSenderParams.setParams((EditText) findViewById(R.id.editText4), (CheckBox) findViewById(R.id.repeatBtn),
-              (Button) findViewById(R.id.buttonStart));
+
+      Resources res = getResources();
+      String strPackage = getPackageName();
+      String strRepeat = res.getString(res.getIdentifier("str_repeat", "string", strPackage ));
+      String strStart = res.getString(res.getIdentifier("str_start", "string",  strPackage));
+
+      CheckBox cb = findViewById(R.id.repeatBtn);
+      cb.setText(strRepeat);
+      Button btn = findViewById(R.id.buttonStart);
+      btn.setText(strStart);
+
+      m_viewSenderParams.setParams((EditText) findViewById(R.id.editText4), cb, btn);
     }
   }
 
