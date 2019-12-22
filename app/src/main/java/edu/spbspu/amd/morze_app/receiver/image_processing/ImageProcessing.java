@@ -65,7 +65,7 @@ public class ImageProcessing implements Runnable {
 
                 ViewReceiver.m_sem.release();
                 if (compareRes != 0) {
-                    Log.d(ActivityMain.APP_NAME, "DIFF!!!!");
+                    //Log.d(ActivityMain.APP_NAME, "DIFF!!!!");
                     diffAmount++;
                     if (diffAmount == 2) {
                         dotDurationCounting = false;
@@ -136,7 +136,7 @@ public class ImageProcessing implements Runnable {
             x_delta = curFrameImage.getWidth() / x_rect_count;
             y_delta = curFrameImage.getWidth() / y_rect_count;
 
-            Log.d(ActivityMain.APP_NAME, "x_delta and y_delta :" + x_delta + ", " + y_delta);
+            //Log.d(ActivityMain.APP_NAME, "x_delta and y_delta :" + x_delta + ", " + y_delta);
 
             m_averageColorsParamsList = new ArrayList<>();
             for (int i = 0; i < x_rect_count; i++) {
@@ -146,7 +146,7 @@ public class ImageProcessing implements Runnable {
                     curElem.start_x = x_delta * i;
                     curElem.start_y = y_delta * j;
 
-                    Log.d(ActivityMain.APP_NAME, "newRect coords: (" + curElem.start_x + ", " + curElem.start_y + ")");
+                    //Log.d(ActivityMain.APP_NAME, "newRect coords: (" + curElem.start_x + ", " + curElem.start_y + ")");
                     m_averageColorsParamsList.add(curElem);
 
                     getAvarageColor(curFrameImage, curElem.cur, curElem.start_x, curElem.start_y);
@@ -164,7 +164,7 @@ public class ImageProcessing implements Runnable {
         }
 
         if (correctRectListFound) {
-            Log.d(ActivityMain.APP_NAME, "correct rects were FOUND");
+            //Log.d(ActivityMain.APP_NAME, "correct rects were FOUND");
             return 1;
         } else {
             return 0;

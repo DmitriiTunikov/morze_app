@@ -112,7 +112,6 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
         m_taskSaveImage = new TimerTask() {
             @Override
             public void run() {
-                Log.d(ActivityMain.APP_NAME, "kek i am here");
                 try {
                     curCameraImage = textureView.getBitmap();
                     if (curCameraImage != null) {
@@ -159,7 +158,7 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
             public void handleMessage(android.os.Message msg) {
                 List<Series> l = graphView.getSeries();
                 LineGraphSeries<DataPoint> curS = (LineGraphSeries<DataPoint>)l.get(0);
-                Log.d(ActivityMain.APP_NAME, "append data point: " + (System.currentTimeMillis() - start_time) / 1000.0 + ", " + msg.what);
+                //Log.d(ActivityMain.APP_NAME, "append data point: " + (System.currentTimeMillis() - start_time) / 1000.0 + ", " + msg.what);
                 curS.appendData(new DataPoint((System.currentTimeMillis() - start_time) / 1000.0, msg.what), true, 120);
             }
         };

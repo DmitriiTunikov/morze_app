@@ -1,6 +1,7 @@
 package edu.spbspu.amd.morze_app.sender;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -38,7 +39,10 @@ public class ViewSenderParams extends View {
         m_startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onTouch(view);
+                if (!onTouch(view))
+                {
+                    //Snackbar.make(view, R.string.str_input_text_err, 100).show();
+                }
             }
         });
     }
@@ -46,6 +50,9 @@ public class ViewSenderParams extends View {
     {
         if (v.getId() == m_startBtn.getId())
         {
+            if (m_text.getText().toString().equals(""))
+                return false;
+
             AppSender appSender = m_ctx.getAppSender();
             appSender.refreshSender(AppSender.m_point_time, m_repeat.isChecked(),
                     MorzeСoder.encode(m_text.getText().toString()));
