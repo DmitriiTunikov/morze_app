@@ -10,6 +10,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import edu.spbspu.amd.morze_app.ActivityMain;
+import edu.spbspu.amd.morze_app.R;
 import edu.spbspu.amd.morze_app.morzeCoder.MorzeСoder;
 import edu.spbspu.amd.morze_app.receiver.ViewReceiver;
 import edu.spbspu.amd.morze_app.receiver.image_processing.ColorsSupp.*;
@@ -22,6 +23,7 @@ public class ImageProcessing implements Runnable {
     private int     curDurationInFrames = 0;
     private boolean dotDurationCounting = true;
     private int diffAmount = 0;
+    private ActivityMain  m_ctx;
     private Handler handler;
     private Handler m_graph_h;
 
@@ -95,6 +97,14 @@ public class ImageProcessing implements Runnable {
                             diffAmount % 2 == 1) {
                         morzeСoder.appendSym('&');
                         Log.d(ActivityMain.APP_NAME, "send & to decoder");
+                        if (!morzeСoder.canDecode())
+                        {
+                            Toast toast = Toast.makeText(m_ctx,
+                                    R.string.str_can_not_decode, Toast.LENGTH_SHORT);
+                            toast.show();
+
+                            return;
+                        }
                     }
 
                     if ((morzeСoder.canDecode())) {
@@ -115,10 +125,11 @@ public class ImageProcessing implements Runnable {
     private ArrayList<AverageColorsParams> m_averageColorsParamsCorrectRectList;
     private boolean correctRectListFound;
     private ArrayList<AverageColorsParams> m_averageColorsParamsList;
-    public ImageProcessing(Handler h, Handler graph_h)
+    public ImageProcessing(Handler h, Handler graph_h, ActivityMain ctx)
     {
         handler = h;
         m_graph_h = graph_h;
+        m_ctx = ctx;
         correctRectListFound = false;
         m_averageColorsParamsCorrectRectList = new ArrayList<>();
         m_averageColorsParamsList = null;

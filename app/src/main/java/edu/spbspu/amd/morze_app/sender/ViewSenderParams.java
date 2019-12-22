@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 import edu.spbspu.amd.morze_app.ActivityMain;
 import edu.spbspu.amd.morze_app.AppIntro;
@@ -41,7 +42,9 @@ public class ViewSenderParams extends View {
             public void onClick(View view) {
                 if (!onTouch(view))
                 {
-                    //Snackbar.make(view, R.string.str_input_text_err, 100).show();
+                    Toast toast = Toast.makeText(m_ctx,
+                            R.string.str_input_text_err, Toast.LENGTH_SHORT);
+                    toast.show();
                 }
             }
         });

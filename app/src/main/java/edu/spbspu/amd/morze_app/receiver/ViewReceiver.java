@@ -163,7 +163,7 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
             }
         };
 
-        m_image_proc = new Thread(new ImageProcessing(h, graph_handler));
+        m_image_proc = new Thread(new ImageProcessing(h, graph_handler, m_ctx));
         m_image_proc.start();
     }
 
