@@ -20,7 +20,7 @@ public class AppSender {
     // rect
     public static long m_point_time = 3000L;
     private ArrayList<Integer> colors;
-    private int m_cur_color_idx;
+    private int m_cur_color_idx = -1;
     private boolean m_need_repeat;
 
     public void setText(char[] text)
@@ -73,8 +73,7 @@ public class AppSender {
                 if (m_cur_color_idx == colors.size() - 1 && !m_need_repeat) {
                     m_cur_color_idx = -2;
                     cancel();
-                }
-                else {
+                } else {
                     if (m_cur_color_idx == colors.size() - 1)
                         m_cur_color_idx = 2;
                     else

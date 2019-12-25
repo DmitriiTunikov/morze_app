@@ -1,6 +1,8 @@
 package edu.spbspu.amd.morze_app.morzeCoder;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class MorzeСoder {
     private StringBuffer cur_buf;
@@ -15,14 +17,14 @@ public class MorzeСoder {
         morze_decoding_map.put("-...", 'b');
         morze_decoding_map.put("-.-", 'c');
         morze_decoding_map.put("-..", 'd');
-        morze_decoding_map.put(".", 'e');
+        morze_decoding_map.put("..--.", 'e');
         morze_decoding_map.put("..-.", 'f');
         morze_decoding_map.put("--.", 'g');
         morze_decoding_map.put("....", 'h');
         morze_decoding_map.put("..", 'i');
         morze_decoding_map.put(".---", 'j');
         morze_decoding_map.put("-.", 'k');
-        morze_decoding_map.put(".-..", 'l');
+        morze_decoding_map.put(".-.-.", 'l');
         morze_decoding_map.put("--", 'm');
         morze_decoding_map.put("-.-.", 'n');
         morze_decoding_map.put("---", 'o');
@@ -52,45 +54,11 @@ public class MorzeСoder {
         morze_decoding_map.put("-.-..", ' ');
 
         morze_encoding_map = new HashMap<>();
-        morze_encoding_map.put('a',".-");
-        morze_encoding_map.put('b',"-...");
-        morze_encoding_map.put('c',"-.-");
-        morze_encoding_map.put('d',"-..");
-        morze_encoding_map.put('e',".");
-        morze_encoding_map.put('f',"..-.");
-        morze_encoding_map.put('g',"--.");
-        morze_encoding_map.put('h',"....");
-        morze_encoding_map.put('i',"..");
-        morze_encoding_map.put('j',".---");
-        morze_encoding_map.put('k',"-.");
-        morze_encoding_map.put('l',".-..");
-        morze_encoding_map.put('m',"--");
-        morze_encoding_map.put('n',"-.-.");
-        morze_encoding_map.put('o',"---");
-        morze_encoding_map.put('p',".--.");
-        morze_encoding_map.put('q',"--.-");
-        morze_encoding_map.put('r',".-.");
-        morze_encoding_map.put('s',"...");
-        morze_encoding_map.put('t',"-");
-        morze_encoding_map.put('u',"..-");
-        morze_encoding_map.put('v',"...-");
-        morze_encoding_map.put('w',".--");
-        morze_encoding_map.put('x',"-..-");
-        morze_encoding_map.put('y',"-.--");
-        morze_encoding_map.put('z',"--..");
-        morze_encoding_map.put('1',".----");
-        morze_encoding_map.put('2',"..---");
-        morze_encoding_map.put('3',"...--");
-        morze_encoding_map.put('4',"....-");
-        morze_encoding_map.put('5',".....");
-        morze_encoding_map.put('6',"-....");
-        morze_encoding_map.put('7',"--...");
-        morze_encoding_map.put('8',"---..");
-        morze_encoding_map.put('9',"----.");
-        morze_encoding_map.put('0',"-----");
-
-        //between words
-        morze_encoding_map.put(' ',"-.-..");
+        Iterator it = morze_decoding_map.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            morze_encoding_map.put((Character)pair.getValue(), (String)pair.getKey());
+        }
     }
 
     public MorzeСoder()
@@ -119,16 +87,16 @@ public class MorzeСoder {
         if (can_decode)
             return;
 
-        //new char
         if (sym == '&')
         {
             res_char = findElemByBuffer();
             if (res_char != '#')
                 can_decode = true;
             else
-                throw new Exception("wrong symbols sequence");
+                throw new Exception("Wrong symbols sequence");
         }
         else
+            //new char
             cur_buf.append(sym);
     }
 
@@ -143,7 +111,7 @@ public class MorzeСoder {
             return res_char;
         }
         else
-            throw new Exception("result char not ready");
+            throw new Exception("Result char not ready");
     }
 
     public static char[] encode(String str)

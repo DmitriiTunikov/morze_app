@@ -12,6 +12,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
@@ -158,12 +159,23 @@ public class ViewReceiver extends View implements TextureView.SurfaceTextureList
             public void handleMessage(android.os.Message msg) {
                 List<Series> l = graphView.getSeries();
                 LineGraphSeries<DataPoint> curS = (LineGraphSeries<DataPoint>)l.get(0);
-                //Log.d(ActivityMain.APP_NAME, "append data point: " + (System.currentTimeMillis() - start_time) / 1000.0 + ", " + msg.what);
-                curS.appendData(new DataPoint((System.currentTimeMillis() - start_time) / 1000.0, msg.what), true, 120);
+                try {
+                    curS.appendData(new DataPoint((System.currentTimeMillis() - start_time) / 1000.0, msg.what), true, 320);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         };
 
-        m_image_proc = new Thread(new ImageProcessing(h, graph_handler, m_ctx));
+        Handler toast_handler = new Handler() {
+            public void handleMessage(android.os.Message msg) {
+                Toast.makeText(m_ctx, "Wrong symbols sequence. Try again, please", Toast.LENGTH_LONG).show();
+                m_ctx.setView(ActivityMain.VIEW_MENU);
+                return;
+            }
+        };
+
+        m_image_proc = new Thread(new ImageProcessing(h, graph_handler, toast_handler, m_ctx));
         m_image_proc.start();
     }
 

@@ -26,6 +26,16 @@ public class ImageProcessing implements Runnable {
     private ActivityMain  m_ctx;
     private Handler handler;
     private Handler m_graph_h;
+    private Handler m_t_handler;
+
+    private ArrayList<AverageColorsParams> m_averageColorsParamsCorrectRectList;
+    private boolean correctRectListFound;
+    private ArrayList<AverageColorsParams> m_averageColorsParamsList;
+
+    private static int x_delta = 0;
+    private static int y_delta = 0;
+    private static final int x_rect_count = 4;
+    private static final int y_rect_count = 5;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -40,34 +50,26 @@ public class ImageProcessing implements Runnable {
 
                 Bitmap curImage;
                 if (ViewReceiver.m_queue.peek() != null) {
-                    //Log.d(ActivityMain.APP_NAME, "queue size is: " + ViewReceiver.m_queue.size());
                     ViewReceiver.m_sem.acquire();
                     curImage = ViewReceiver.m_queue.pop();
                 } else {
                     continue;
                 }
 
-
                 int compareRes = 0;
                 if (!correctRectListFound) {
-                    //Log.d(ActivityMain.APP_NAME, "Comparing before rectFound started.");
                     compareRes = compareWithCurrentFrameImageBeforeReadyRects(curImage);
                 } else {
-                    //Log.d(ActivityMain.APP_NAME, "Comparing into correct Rectangles started.");
                     compareRes = compareWithCurrentFrameImage(curImage);
                 }
-
-                //Log.d(ActivityMain.APP_NAME, "Comparing finished.");
 
                 if (dotDurationCounting && diffAmount > 0)
                     dotDurationInFrames++;
                 else if (diffAmount >= 2)
                     curDurationInFrames++;
 
-
                 ViewReceiver.m_sem.release();
                 if (compareRes != 0) {
-                    //Log.d(ActivityMain.APP_NAME, "DIFF!!!!");
                     diffAmount++;
                     if (diffAmount == 2) {
                         dotDurationCounting = false;
@@ -82,32 +84,22 @@ public class ImageProcessing implements Runnable {
 
                     if (curDurationInFrames <= dotDurationInFrames + 2 &&
                             curDurationInFrames >= dotDurationInFrames - 2 &&
-                        diffAmount % 2 == 0) {
-                        morzeСoder.appendSym('.');
+                            diffAmount % 2 == 0) {
                         Log.d(ActivityMain.APP_NAME, "send . to decoder");
-
-                    }
-                    else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
-                            curDurationInFrames >= 3 * dotDurationInFrames - 6 && diffAmount % 2 == 0) {
-                        morzeСoder.appendSym('-');
+                        morzeСoder.appendSym('.');
+                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
+                            curDurationInFrames >= 3 * dotDurationInFrames - 6 &&
+                            diffAmount % 2 == 0) {
                         Log.d(ActivityMain.APP_NAME, "send - to decoder");
-                    }
-                    else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
+                        morzeСoder.appendSym('-');
+                    } else if (curDurationInFrames <= 3 * dotDurationInFrames + 6 &&
                             curDurationInFrames >= 3 * dotDurationInFrames - 6 &&
                             diffAmount % 2 == 1) {
-                        morzeСoder.appendSym('&');
                         Log.d(ActivityMain.APP_NAME, "send & to decoder");
-                        if (!morzeСoder.canDecode())
-                        {
-                            Toast toast = Toast.makeText(m_ctx,
-                                    R.string.str_can_not_decode, Toast.LENGTH_SHORT);
-                            toast.show();
-
-                            return;
-                        }
+                        morzeСoder.appendSym('&');
                     }
 
-                    if ((morzeСoder.canDecode())) {
+                    if (morzeСoder.canDecode()) {
                         char curSym = '#';
                         curSym = morzeСoder.getDecodedSym();
                         Log.d(ActivityMain.APP_NAME, "new symbol is " + curSym);
@@ -118,27 +110,20 @@ public class ImageProcessing implements Runnable {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            m_t_handler.sendEmptyMessage(0);
         }
     }
 
-    private ArrayList<AverageColorsParams> m_averageColorsParamsCorrectRectList;
-    private boolean correctRectListFound;
-    private ArrayList<AverageColorsParams> m_averageColorsParamsList;
-    public ImageProcessing(Handler h, Handler graph_h, ActivityMain ctx)
+    public ImageProcessing(Handler h, Handler graph_h, Handler t_handler, ActivityMain ctx)
     {
         handler = h;
         m_graph_h = graph_h;
+        m_t_handler = t_handler;
         m_ctx = ctx;
         correctRectListFound = false;
         m_averageColorsParamsCorrectRectList = new ArrayList<>();
         m_averageColorsParamsList = null;
     }
-
-    private static int x_delta = 0;
-    private static int y_delta = 0;
-    private static final int x_rect_count = 4;
-    private static final int y_rect_count = 5;
 
     private int compareWithCurrentFrameImageBeforeReadyRects(Bitmap curFrameImage)
     {
@@ -146,8 +131,6 @@ public class ImageProcessing implements Runnable {
         if (m_averageColorsParamsList == null) {
             x_delta = curFrameImage.getWidth() / x_rect_count;
             y_delta = curFrameImage.getWidth() / y_rect_count;
-
-            //Log.d(ActivityMain.APP_NAME, "x_delta and y_delta :" + x_delta + ", " + y_delta);
 
             m_averageColorsParamsList = new ArrayList<>();
             for (int i = 0; i < x_rect_count; i++) {
@@ -157,7 +140,6 @@ public class ImageProcessing implements Runnable {
                     curElem.start_x = x_delta * i;
                     curElem.start_y = y_delta * j;
 
-                    //Log.d(ActivityMain.APP_NAME, "newRect coords: (" + curElem.start_x + ", " + curElem.start_y + ")");
                     m_averageColorsParamsList.add(curElem);
 
                     getAvarageColor(curFrameImage, curElem.cur, curElem.start_x, curElem.start_y);
@@ -228,23 +210,15 @@ public class ImageProcessing implements Runnable {
     {
         int epsilonIntensity = 80;
 
-        /*
-        Log.d(ActivityMain.APP_NAME, "PrevColor(" + param1.color.r + "," + param1.color.g + "," + param1.color.b + "), " +
-                "PrevIntensity = " + param1.intensity);
-        Log.d(ActivityMain.APP_NAME, "CurColor(" + param2.color.r + "," + param2.color.g + "," + param2.color.b + "), " +
-                "CurIntensity = " + param2.intensity);*/
-
         return Math.abs(param1.intensity - param2.intensity) > epsilonIntensity;
     }
 
     private int _isDiffFrom(Bitmap curFrameImage, AverageColorsParams averageParams)
     {
-        //prev = last current
         averageParams.prev = (ColorsSupp.AverageColorParam) averageParams.cur.clone();
 
         getAvarageColor(curFrameImage, averageParams.cur, averageParams.start_x, averageParams.start_y);
 
-        //Log.d(ActivityMain.APP_NAME, "Get diff for (" + averageParams.start_x + ", " + averageParams.start_y + ")");
         return isDifferentColors(averageParams.prev, averageParams.cur) ? 1 : 0;
     }
 }

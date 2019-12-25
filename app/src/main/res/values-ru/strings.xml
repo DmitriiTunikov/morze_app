@@ -10,7 +10,7 @@
     <string name="str_send">Отослать</string>
     <string name="str_receive">Принять</string>
     <string name="str_repeat">Повторять</string>
-    <string name="str_input_text">Введите фразу/слово для передачи</string>
+    <string name="str_input_text">Введите фразу/слово для передачи (на английском)</string>
     <string name="str_input_text_err">Пожалуйста, ввведите хотя бы одну букву</string>
     <string name="str_can_not_decode">Невозможно расшифровать символ</string>
 </resources>

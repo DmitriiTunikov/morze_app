@@ -10,7 +10,7 @@
     <string name="str_send">Send</string>
     <string name="str_receive">Receive</string>
     <string name="str_repeat">Repeat</string>
-    <string name="str_input_text">Input phrase/word to send</string>
+    <string name="str_input_text">Input phrase/word to send (in english)</string>
     <string name="str_input_text_err">Please enter at least one letter</string>
     <string name="str_can_not_decode">Can not decode symbol</string>
 </resources>
